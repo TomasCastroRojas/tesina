@@ -242,6 +242,26 @@ Section Techniques.
         | nil => dest
         | mac::macs => oplusNeighbours macs (addNeighbour mac dest)
       end.
+      
+    Definition unionServices (s1 s2: idService -> option Service) : idService -> option Service :=
+      fun s => match s1 s with
+                | None => s2 s
+                | Some serv => Some serv
+               end.
+    
+    Fixpoint elem_mem_nat (n: nat) (l: list nat) : bool :=
+      match l with
+        | nil => false
+        | x::xs => if Nat.eqb n x then true else elem_mem_nat n xs
+      end.
+    
+    Definition scanServices (services: idService -> option Service) (ports: list nat) : idService -> option Service :=
+      fun s => match services s with
+                | None => None
+                | Some serv => if logical_identifier_eq (logical_ident serv) service_port && (elem_mem_nat (value_s serv) ports) 
+                               then Some serv 
+                               else None
+               end.
     (*
     Fixpoint get_service_in_port (port: nat) (services: list Service) : option Service :=
       match services with
@@ -364,33 +384,32 @@ Section Techniques.
                                                    (macView: Machine), (enviroment a) m = Some macView
                                                                            /\ network m = Some mac
                                                                            /\ enviroment a' = modify_machine m 
-                                                                                                             (machine ((machine_view_services macView) ++ (machine_services mac))
-                                                                                                                       (machine_view_accounts macView)
-                                                                                                                       (machine_view_fileSystem macView)
-                                                                                                                       (machine_view_neighbours macView))
+                                                                                                             (machine (unionServices (machine_services macView) (machine_services mac))
+                                                                                                                      (machine_accounts macView)
+                                                                                                                      (machine_fileSystem macView)
+                                                                                                                      (machine_neighbours macView))
                                                                                                              (enviroment a))
-      (*
-      | Create_Account m u u' k' l' s => known_machines a' = known_machines a
-                                         /\ secrets a' = secrets a
-                                         /\ (exists (macView: MachineView), (enviroment a) m = Some macView
-                                                                              /\ enviroment a' = modify_machine m
-                                                                                                              (machine_view (machine_view_ident macView)
-                                                                                                                             (machine_view_services macView)
-                                                                                                                             (addAccountView u' (account_view (Some s) (Some (Some k')) (Some l')) (machine_view_accounts macView))
-                                                                                                                             (machine_view_fileSystem macView)
-                                                                                                                             (machine_view_neighbours macView))
-                                                                                                              (enviroment a))
-
       | Network_Service_Scanning m u m' l => known_machines a' = known_machines a
                                              /\ secrets a' = secrets a
                                              /\ (exists (macView': Machine)
                                                         (mac': Machine), (enviroment a) m' = Some macView'
                                                                          /\ enviroment a' = modify_machine m'
-                                                                                                            (machine_view (machine_services macView')
-                                                                                                                          (machine_accounts macView')
-                                                                                                                          (machine_fileSystem macView')
-                                                                                                                          (machine_neighbours macView'))
+                                                                                                            (machine (unionServices (machine_services macView') (scanServices (machine_services mac') l))
+                                                                                                                     (machine_accounts macView')
+                                                                                                                     (machine_fileSystem macView')
+                                                                                                                     (machine_neighbours macView'))
                                                                                                             (enviroment a))
+      (*
+      | Create_Account m u u' k' l' s => known_machines a' = known_machines a
+                                         /\ secrets a' = secrets a
+                                         /\ (exists (macView: MachineView), (enviroment a) m = Some macView
+                                                                              /\ enviroment a' = modify_machine m
+                                                                                                              (machine_view (machine_view_services macView)
+                                                                                                                             (addAccountView u' (account_view (Some s) (Some (Some k')) (Some l')) (machine_view_accounts macView))
+                                                                                                                             (machine_view_fileSystem macView)
+                                                                                                                             (machine_view_neighbours macView))
+                                                                                                              (enviroment a))
+
       | File_Directory_Discovery_Local m u p => known_machines a' = known_machines a
                                                 /\ (exists (macView: MachineView)
                                                            (mac: Machine)
