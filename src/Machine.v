@@ -83,7 +83,7 @@ Section Machine.
     machine {
       machine_services : idService -> option Service;
       machine_accounts : idUser -> option (list Account);
-      machine_fileSystem : path -> option (list idUser * objective);
+      machine_fileSystem : path -> option (list path * list idUser * objective);
       machine_neighbours : list idMachine;
     }.
     

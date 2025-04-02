@@ -13,7 +13,7 @@ Section muSE.
   Definition register_users (m:Machine) : idUser -> Prop := 
     fun u => exists (l: list Account), (machine_accounts m) u = Some l.
   Definition register_paths (m:Machine) : path -> Prop := 
-    fun p => exists (l: list idUser) (o: objective), (machine_fileSystem m) p = Some (l, o).
+    fun p => exists (files: list path) (users: list idUser) (o: objective), (machine_fileSystem m) p = Some (files, users, o).
   
   Definition valid_attacker_i (a: Attacker) : Prop :=
     forall (m:idMachine) (u:idUser), (In (m,u) (known_machines a)) -> (exists (mac: Machine), (enviroment a) m = Some mac 
