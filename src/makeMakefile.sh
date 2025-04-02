@@ -1,2 +1,2 @@
 #!/bin/bash
-coq_makefile *.v -o Makefile
+coq_makefile -f _CoqProject -o CoqMakeFile && make -f CoqMakeFile
