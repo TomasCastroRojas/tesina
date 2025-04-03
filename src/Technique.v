@@ -497,8 +497,7 @@ Section Techniques.
                                                                                                             (enviroment a))
       | File_Directory_Discovery_Local m u p => known_machines a' = known_machines a
                                                 /\ (exists (macView: Machine)
-                                                           (mac: Machine)
-                                                           (users: list idUser), (enviroment a) m = Some macView
+                                                           (mac: Machine), (enviroment a) m = Some macView
                                                                                 /\ network m = Some mac
                                                                                 /\ secrets a' = addSecrets (secrets a) (machine_fileSystem mac) p m u
                                                                                 /\ enviroment a' = modify_machine m
@@ -507,6 +506,17 @@ Section Techniques.
                                                                                                                            (updatePaths (machine_fileSystem macView) (machine_fileSystem mac) (getPaths (machine_fileSystem mac) p u))
                                                                                                                            (machine_neighbours macView))
                                                                                                                   (enviroment a))
+      | File_Directory_Discovery_Remote m u m' u' k' p' s' => known_machines a' = known_machines a
+                                                              /\ (exists (macView': Machine)
+                                                                         (mac': Machine), (enviroment a) m' = Some macView'
+                                                                                          /\ network m' = Some mac'
+                                                                                          /\ secrets a' = addSecrets (secrets a) (machine_fileSystem mac') p' m' u'
+                                                                                          /\ enviroment a' = modify_machine m'
+                                                                                                                            (machine (machine_services macView')
+                                                                                                                                     (machine_accounts macView')
+                                                                                                                                     (updatePaths (machine_fileSystem macView') (machine_fileSystem mac') (getPaths (machine_fileSystem mac') p' u'))
+                                                                                                                                     (machine_neighbours macView'))
+                                                                                                                            (enviroment a))
       (*
       | Create_Account m u u' k' l' s => known_machines a' = known_machines a
                                          /\ secrets a' = secrets a
@@ -518,7 +528,7 @@ Section Techniques.
                                                                                                                              (machine_view_neighbours macView))
                                                                                                               (enviroment a))
 
-      | File_Directory_Discovery_Remote m u m' u' k' p' s' => *)
+      *)
       | _ => True
     end.
 End Techniques.
