@@ -108,15 +108,14 @@ Section Predicados.
               (auth: list idUser)
               (o: objective), (machine_fileSystem m) p = Some (files, auth, o) /\ (In u auth)) -> registered_users m u.
               
-  (*
   (* Para todo path en la maquina sus subarchivos estan registrados en la maquina *)
   (* Para todo path que es un directorio, los archivos que contiene estan registrados en la maquina *)
   Definition subfiles_in_machine (m: Machine) : Prop :=
-    forall (p: path),
-      (exists (files: list path)
-              (auth: list idUser)
-              (o: objective), (machine_fileSystem m) p = Some (files, auth, o)) -> (forall (p':path), (In p' files) -> registered m p').
-  *)
+    forall (p: path)
+           (files: list path)
+           (auth: list idUser)
+           (o: objective), (machine_fileSystem m) p = Some (files, auth, o) -> (forall (p':path), (In p' files) -> registered_paths m p').
+
   Definition is_neighbour (m: Machine) (mid: idMachine) :=
     In mid (machine_neighbours m).
     
@@ -129,12 +128,15 @@ Section Predicados.
                               /\ (In acc l) 
                               /\ (account_service acc) = s) -> (exists (serv: Service), (machine_services m) s = Some serv).
   
-  (*
   (* Para toda maquina que pertenece a la red, todos sus vecinos tambien pertenecen a la red y ella es vecina de ellos *)
   Definition network_topology (network: network_map) : Prop :=
-    forall (mid: idMachine),
-      (exists (m: Machine), network mid = Some m) -> 
+    forall (mid: idMachine)(m: Machine), network mid = Some m -> 
         forall (neighbour: idMachine), is_neighbour m neighbour 
           -> (exists (m':Machine), network neighbour = Some m' /\ is_neighbour m' mid).
-  *)
+          
+  Definition valid_machine (m: Machine) : Prop :=
+    users_access_to_files m /\ subfiles_in_machine m /\ users_access_to_services m.
+    
+  Definition valid_network (network: network_map) : Prop :=
+    network_topology network /\ (forall (mid: idMachine)(m: Machine), network mid = Some m -> valid_machine m).
 End Predicados.
