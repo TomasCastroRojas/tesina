@@ -57,7 +57,9 @@ Section Machine.
   Record Service : Set :=
     service {
       logical_ident : logical_identifier;
-      value_s : nat (* Deberia ser serviceValue *)
+      value_s : nat (* Deberia ser serviceValue *) 
+      (* El experimento PWNJUTSU modela principalmente la etapa de propagacion en red del atacante 
+      por lo que en las Techniques siempre se utiliza como logical_ident a un puerto *)
     }.
   
   Definition is_network_service (s: Service) : Prop := (logical_ident s) = service_port.
@@ -81,10 +83,10 @@ Section Machine.
   
   Record Machine : Set :=
     machine {
-      machine_services : idService -> option Service;
-      machine_accounts : idUser -> option (list Account);
-      machine_fileSystem : path -> option (list path * list idUser * objective);
-      machine_neighbours : list idMachine;
+      machine_services : idService -> option Service; (* Servicios registrados *)
+      machine_accounts : idUser -> option (list Account); (* Usuarios registrado. Un usuario puede estar suscrito a más de un servicio *)
+      machine_fileSystem : path -> option (list path * list idUser * objective); (* Archivos y directorios de la máquina *)
+      machine_neighbours : list idMachine; (* Vecinos *)
     }.
     
   (* Red de máquinas en un sistema *)
