@@ -15,13 +15,17 @@ Section muSE.
   (* Para cada par de identificador de máquina y usuario que esta en el area de propagación del atacante (known_machines),
      entonces ese identificador esta definido en las vistas parciales y el usuario es un usuario registrado en esa máquina *)
   Definition valid_attacker_i (a: Attacker) : Prop :=
-    forall (m:idMachine) (u:idUser) (mac: Machine), (In (m,u) (known_machines a)) -> (enviroment a) m = Some mac /\ (registered_users mac) u.
-  
+    forall (m:idMachine) (u:idUser), 
+      (In (m,u) (known_machines a)) -> 
+        (exists (mac:Machine), (enviroment a) m = Some mac /\ (registered_users mac) u).
+
   (* Relaciona secrets con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y path que el atacante obtuvo como secreto (secrets),
      entonces ese identificador esta definido en las vistas parciales y el path es una ruta registrada/válida en esa máquina *)
   Definition valid_attacker_ii (a: Attacker) : Prop :=
-    forall (m:idMachine) (p:path) (mac: Machine), (In (m,p) (secrets a)) -> (enviroment a) m = Some mac /\ (registered_paths mac) p.
+    forall (m:idMachine) (p:path), 
+      (In (m,p) (secrets a)) -> 
+        (exists (mac:Machine), (enviroment a) m = Some mac /\ (registered_paths mac) p).
                                                                                      
   (* Enviroment válido de un atacante *)
   (* Topología válida y además para toda máquina que tiene una vista parcial definida, entonces esa máquina es válida*)

@@ -46,22 +46,86 @@ Section AttackerInvariant.
             exact HIn.
   Qed.
   
+  Lemma neutro : forall (A B C: Prop), (A \/ B \/ C) <-> (B \/ A \/ C).
+  Proof.
+    intros.
+    split; intro H; elim H; intro H'.
+    - right. left. exact H'.
+    - elim H'; intro H''.
+      -- left. exact H''.
+      -- right. right. exact H''.
+    - right. left. exact H'.
+    - elim H'; intro H''.
+      -- left. exact H''.
+      -- right. right. exact H''.
+  Qed.
+  
+  Lemma member_add_machine_user : forall (m m': idMachine) (u u':idUser) (l: list (idMachine * idUser)),
+    In (m,u) (add_machine_user (m', u') l) <-> ((m', u') = (m, u) \/ In (m, u) l).
+  Proof.
+    induction l.
+    - simpl. reflexivity.
+    - destruct a as [m0 u0].
+      simpl.
+      case (idMachine_eq m' m0).
+      -- case (idUser_eq u' u0); intros Heq_u Heq_m; simpl; split; intro H; elim H; intro H'.
+         --- left. rewrite Heq_u. rewrite Heq_m. exact H'.
+         --- right. right. exact H'.
+         --- left. rewrite <- Heq_u. rewrite <- Heq_m. exact H'.
+         --- exact H'.
+         --- right. left. exact H'.
+         --- apply neutro. right. apply IHl. exact H'.
+         --- right. apply IHl. left. exact H'.
+         --- elim H'; intros H''.
+             ---- left. exact H''.
+             ---- right. apply IHl. right. exact H''.
+     -- intro neq_m.
+        simpl.
+        split; intro H; [  | apply neutro in H]; elim H; intro H'.
+        --- right. left. exact H'.
+        --- apply neutro. right. apply IHl. exact H'.
+        --- left. exact H'.
+        --- right. apply IHl. exact H'.
+  Qed.
+  
   Theorem one_step_preserves_prop_i : forall (a a' : Attacker) (t : Technique) (n: network_map),
       one_step a t n a' -> valid_attacker_i a'.
   Proof.
     intros a a' t n onestep.
     destruct onestep.
     induction t; unfold valid_attacker in H0; unfold valid_network in H;
-    unfold Pre in H1; unfold Post in H2; unfold valid_attacker_i.
-    - clear H network.
-      intros m' u' mac' known_machines_a'.
-      elim H2; intros know_machines_a H2'; clear H2.
-      elim H2'; intros secrets env; clear H2' secrets.
-      elim H0; intros PropI H0'; clear H0 H0'.
-      unfold valid_attacker_i in PropI.
+    unfold Pre in H1; unfold Post in H2; unfold valid_attacker_i; intros m' u' known_machines_a'.
+    - elim H0.
+      intros valid_a H0'.
+      unfold valid_attacker_i in valid_a.
+      elim H2.
+      intros new_machines H2'.
+      elim H2'.
+      intros secrets env.
+      clear H H2 H2' H0 H0'.
       rewrite env.
-      apply PropI.
-      rewrite know_machines_a in known_machines_a'.
+      rewrite new_machines in known_machines_a'.
+      apply member_add_machine_user in known_machines_a'.
+      elim known_machines_a'.
+      -- intro eq.
+         elim H1; intros H4 H1'; clear H1.
+         elim H1'; intros H5 H1''; clear H1'.
+         elim H1''; intros accs H1'''; clear H1''.
+         elim H1'''; intros acc H1''''; clear H1'''.
+         elim H1''''; intros mac' H6; clear H1''''.
+         elim H6; intros env_mac' H7.
+         elim H7; intros accs_mac' H8.
+         clear H4 H5 H6 H7 H8.
+         exists mac'.
+         injection eq.
+         intros equ' eqm'.
+         split.
+         --- rewrite <- eqm'. exact env_mac'.
+         --- rewrite <- equ'. unfold registered_users. exists accs. exact accs_mac'.
+      -- intro known_machines_a.
+         apply valid_a.
+         exact known_machines_a.
+    - 
       admit.
   Admitted.
       
