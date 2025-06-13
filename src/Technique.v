@@ -155,7 +155,7 @@ Section Techniques.
                                                                              /\ (machine_accounts mac) u' = Some accs
                                                                              /\ In acc accs
                                                                              /\ account_service acc = s'
-                                                                             /\ known_machines a' = add_machine_user (m,u') (known_machines a))
+                                                                             /\ known_machines a' = add_machine_user (m',u') (known_machines a))
                                                                                               
       | Unsecured_Credentials m u s => known_machines a' = known_machines a
                                        /\ secrets a' = secrets a

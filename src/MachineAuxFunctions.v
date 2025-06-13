@@ -17,7 +17,7 @@ Section MachineAuxOperations.
       end.
     
     Definition modify_machine (m: idMachine) (mac: Machine) (env: idMachine -> option Machine) : idMachine -> option Machine :=
-      fun id => match idMachine_eq m id with
+      fun id => match idMachine_eq id m with
                   | left _ => Some mac
                   | right _ => env id
                 end.
@@ -41,7 +41,7 @@ Section MachineAuxOperations.
       end.
       
     Definition modify_accounts (u: idUser) (l: list Account) (accounts: idUser -> option (list Account)) : idUser -> option (list Account) :=
-      fun id => match idUser_eq u id with
+      fun id => match idUser_eq id u with
                   | left _ => Some l
                   | right _ => accounts id
                 end.
