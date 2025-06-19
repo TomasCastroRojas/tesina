@@ -14,10 +14,10 @@ Section muSE.
   (* Relaciona known_machines con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y usuario que esta en el area de propagación del atacante (known_machines),
      entonces ese identificador esta definido en las vistas parciales y el usuario es un usuario registrado en esa máquina *)
-  Definition valid_attacker_i (a: Attacker) : Prop :=
+  Definition valid_attacker_i (a: Attacker) (network: network_map) : Prop :=
     forall (m:idMachine) (u:idUser), 
       (In (m,u) (known_machines a)) -> 
-        (exists (mac:Machine), (enviroment a) m = Some mac /\ (registered_users mac) u).
+        (exists (mac:Machine), (((enviroment a) m = Some mac) \/ (network m) = Some mac) /\ (registered_users mac) u).
 
   (* Relaciona secrets con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y path que el atacante obtuvo como secreto (secrets),
@@ -37,6 +37,6 @@ Section muSE.
      y además las máquinas estan relacionadas (una es 'subconjunto' de la otra)*)
   Definition valid_attacker_iv (a: Attacker) (network: network_map) : Prop := True.
   
-  Definition valid_attacker (a: Attacker) : Prop :=
-    valid_attacker_i a /\ valid_attacker_iii a /\ valid_attacker_iii a.
+  Definition valid_attacker (a: Attacker) (network: network_map) : Prop :=
+    valid_attacker_i a network /\ valid_attacker_iii a /\ valid_attacker_iii a.
 End muSE.

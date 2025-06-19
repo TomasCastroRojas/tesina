@@ -296,7 +296,7 @@ Section Techniques.
     
     Inductive one_step : Attacker -> Technique -> (idMachine -> option Machine) -> Attacker -> Prop :=
       | onestep : forall (a: Attacker) (t: Technique) (network: idMachine -> option Machine) (a': Attacker),
-                    valid_network network -> valid_attacker a -> Pre a t -> Post a t network a' -> one_step a t network a'.
+                    valid_network network -> valid_attacker a network -> Pre a t -> Post a t network a' -> one_step a t network a'.
                     
     Notation "t ⇒ a ↪ n ↪ a'" := (one_step a t n a') (at level 50).
 End Techniques.

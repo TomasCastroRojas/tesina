@@ -5,6 +5,8 @@ Require Import MachineAuxFunctions.
 Require Import Attacker.
 Require Import Technique.
 
+
+Ltac elim_intro_clear H H' H'' := elim H; intros H' H''; clear H.
 Section AttackerInvariant.
   
   (* add_machine_user se 'comporta' como cons *)
@@ -89,38 +91,35 @@ Section AttackerInvariant.
   Qed.
   
   Theorem one_step_preserves_prop_i : forall (a a' : Attacker) (t : Technique) (n: network_map),
-      one_step a t n a' -> valid_attacker_i a'.
+      one_step a t n a' -> valid_attacker_i a' n.
   Proof.
     intros a a' t n onestep.
     destruct onestep.
     induction t; unfold valid_attacker in H0; unfold valid_network in H;
     unfold Pre in H1; unfold Post in H2; unfold valid_attacker_i; intros m' u' known_machines_a'.
-    - elim H0.
-      intros valid_a H0'.
+    - elim_intro_clear H0 valid_a H0'; clear H0'.
       unfold valid_attacker_i in valid_a.
-      elim H2.
-      intros new_machines H2'.
-      elim H2'.
-      intros secrets env.
-      clear H H2 H2' H0 H0'.
+      elim_intro_clear H2 new_machines H2'.
+      elim_intro_clear H2' Hsecrets env.
+      clear H.
       rewrite env.
       rewrite new_machines in known_machines_a'.
       apply member_add_machine_user in known_machines_a'.
       elim known_machines_a'.
       -- intro eq.
-         elim H1; intros H4 H1'; clear H1.
-         elim H1'; intros H5 H1''; clear H1'.
-         elim H1''; intros accs H1'''; clear H1''.
-         elim H1'''; intros acc H1''''; clear H1'''.
-         elim H1''''; intros mac' H6; clear H1''''.
-         elim H6; intros env_mac' H7.
-         elim H7; intros accs_mac' H8.
-         clear H4 H5 H6 H7 H8.
+         elim_intro_clear H1 H4 H1'.
+         elim_intro_clear H1' H5 H1''.
+         elim_intro_clear H1'' accs H1'''.
+         elim_intro_clear H1''' acc H1''''.
+         elim_intro_clear H1'''' mac' H6.
+         elim_intro_clear H6 env_mac' H7.
+         elim_intro_clear H7 accs_mac' H8.
+         clear H4 H5 H8.
          exists mac'.
          injection eq.
          intros equ' eqm'.
          split.
-         --- rewrite <- eqm'. exact env_mac'.
+         --- left. rewrite <- eqm'. exact env_mac'.
          --- rewrite <- equ'. unfold registered_users. exists accs. exact accs_mac'.
       -- intro known_machines_a.
          apply valid_a.
@@ -128,77 +127,78 @@ Section AttackerInvariant.
     - elim H0; intros valid_a H0'; clear H0 H0'.
       unfold valid_attacker_i in valid_a.
       
-      elim H1; intros H3 H1'; clear H1.
-      elim H1'; intros H4 H1''; clear H1'.
-      elim H1''; intros serv H1'''; clear H1''.
-      elim H1'''; intros mac' H5; clear H1'''.
-      elim H5; intros exists_mac H5'; clear H3 H4 H5 H5'.
-      
-      elim H2; intros secrets H2'; clear H2.
-      elim H2'; intros env H2''; clear H2'.
-      elim H2''; intros mac'' H2'''; clear H2''.
-      elim H2'''; intros serv' H2''''; clear H2'''.
-      elim H2''''; intros acss H2'''''; clear H2''''.
-      elim H2'''''; intros acc H2''''''; clear H2'''''.
-      elim H2''''''; intros user H3; clear H2''''''.
-      elim H3; intros net_i1 H3'; clear H3.
-      elim H3'; intros H4 H3''; clear H3'.
+      elim_intro_clear H2 Hsecrets H2'.
+      elim_intro_clear H2' env H2''.
+      elim_intro_clear H2'' mac' H2'''.
+      elim_intro_clear H2''' serv' H2''''.
+      elim_intro_clear H2'''' accs H2'''''.
+      elim_intro_clear H2''''' acc H2''''''.
+      elim_intro_clear H2'''''' user H3.
+      elim_intro_clear H3 net_i1 H3'.
+      elim_intro_clear H3' H4 H3''.
+      elim_intro_clear H3'' net_users H3'''.
+      elim_intro_clear H3''' H5 H3''''.
+      elim_intro_clear H3'''' H6 eq_known_machines_a'.
+      clear H4 H5 H6.
+      rewrite eq_known_machines_a' in known_machines_a'.
+      apply member_add_machine_user in known_machines_a'.
+      elim known_machines_a'.
+      -- intro eq.
+         exists mac'.
+         injection eq.
+         intros eq_u eq_m.
+         split.
+         --- right. rewrite <- eq_m. exact net_i1.
+         --- rewrite <- eq_u. unfold registered_users. exists accs. exact net_users.
+      -- intro known_machines_a.
+         rewrite env.
+         apply valid_a.
+         exact known_machines_a.
       (* 
       TODO: Esta técnica no cumple la propiedad porque el usuario agregado
       es de la maquina física y no la vista parcial. Tampoco es agregado a la vista parcial.
       Caso extraño porque las demas técnicas requieren conocer una Account para ejecutarse
       *)
-      admit.
-    - elim H0; intros valid_a H0'; clear H0 H0'.
+    - elim_intro_clear H0 valid_a H0'; clear H0'.
       unfold valid_attacker_i in valid_a.
       
-      elim H2; intros eq_known_machines H2'; clear H2.
-      elim H2'; intros secrets H2''; clear H2'.
-      elim H2''; intros macView H2'''; clear H2''.
-      elim H2'''; intros mac H2''''; clear H2'''.
-      elim H2''''; intros accs H2'''''; clear H2''''.
-      elim H2'''''; intros accsView H3; clear H2'''''.
-      elim H3; intros exists_macView H3'; clear H3.
-      elim H3'; intros exists_net H3''; clear H3'.
-      elim H3''; intros exists_user H3'''; clear H3''.
-      elim H3'''; intros exists_net_user env; clear H3'''.
-      clear H secrets exists_net exists_net_user.
+      elim_intro_clear H2 eq_known_machines H2'.
+      elim_intro_clear H2' Hsecrets H2''.
+      elim_intro_clear H2'' macView H2'''.
+      elim_intro_clear H2''' mac H2''''.
+      elim_intro_clear H2'''' accs H2'''''.
+      elim_intro_clear H2''''' accsView H3.
+      elim_intro_clear H3 exists_macView H3'.
+      elim_intro_clear H3' exists_net H3''.
+      elim_intro_clear H3'' exists_user H3'''.
+      elim_intro_clear H3''' exists_net_user env.
+      clear H Hsecrets exists_net exists_net_user.
       
-      rewrite env.
-      unfold modify_machine.
-      case (idMachine_eq m' i).
-      -- case (idUser_eq u' i0).
+      case (idUser_eq u' i0).
+      -- rewrite env.
+         unfold modify_accounts.
+         unfold modify_machine.
+         case (idMachine_eq m' i).
          --- intros.
-             unfold registered_users.
              exists (machine (machine_services macView)
                              (modify_accounts i0 (oplusAccounts (get_accounts_linked_service_with_key i1 accs) accsView) (machine_accounts macView))
                              (machine_fileSystem macView)
                              (machine_neighbours macView)).
              simpl.
              split.
-             ---- reflexivity.
-             ---- exists (oplusAccounts (get_accounts_linked_service_with_key i1 accs) accsView).
+             ---- left. reflexivity.
+             ---- unfold registered_users.
+                  simpl.
                   unfold modify_accounts.
+                  exists (oplusAccounts (get_accounts_linked_service_with_key i1 accs) accsView).
                   case (idUser_eq u' i0).
-                  ----- intro; reflexivity.
+                  ----- intro. reflexivity.
                   ----- intro. contradiction.
          --- intros.
-             exists (machine (machine_services macView)
-                         (modify_accounts i0 (oplusAccounts (get_accounts_linked_service_with_key i1 accs) accsView) (machine_accounts macView))
-                         (machine_fileSystem macView)
-                         (machine_neighbours macView)).
-             unfold registered_users.
-             simpl.
-             split.
-             ---- reflexivity.
-             ---- unfold modify_accounts.
-                  case (idUser_eq u' i0).
-                  ----- intro. contradiction.
-                  ----- intro. admit.
-      -- intro.
-         apply valid_a.
-         rewrite <- eq_known_machines.
-         exact known_machines_a'.
+             apply valid_a.
+             rewrite <- eq_known_machines.
+             exact known_machines_a'.
+      -- intro. simpl.
   Admitted.
       
   Theorem one_step_preserves_prop_ii : forall (a a' : Attacker) (t : Technique) (n: network_map),
@@ -212,7 +212,7 @@ Section AttackerInvariant.
     admit.
   Admitted.
   Theorem one_step_preserves_valid_attacker : forall (a a' : Attacker) (t : Technique) (n: network_map),
-      one_step a t n a' -> valid_attacker a'.
+      one_step a t n a' -> valid_attacker a' n.
   Proof.
     admit.
   Admitted.
