@@ -1,0 +1,1 @@
+Ltac elim_intro_clear H H' H'' := elim H; intros H' H''; clear H.

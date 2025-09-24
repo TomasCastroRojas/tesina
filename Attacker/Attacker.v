@@ -1,5 +1,6 @@
 Require Import Coq.Lists.List.
-Require Import Machine.
+
+Require Import Tesina.Machine.Machine.
 
 Section muSE.
 
@@ -13,11 +14,11 @@ Section muSE.
   
   (* Relaciona known_machines con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y usuario que esta en el area de propagación del atacante (known_machines),
-     entonces ese identificador esta definido en las vistas parciales y el usuario es un usuario registrado en esa máquina *)
+     entonces ese identificador esta definido en las vistas parciales *)
   Definition valid_attacker_i (a: Attacker) (network: network_map) : Prop :=
     forall (m:idMachine) (u:idUser), 
       (In (m,u) (known_machines a)) -> 
-        (exists (mac:Machine), (((enviroment a) m = Some mac) \/ (network m) = Some mac) /\ (registered_users mac) u).
+        (exists (mac:Machine), ((enviroment a) m = Some mac)).
 
   (* Relaciona secrets con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y path que el atacante obtuvo como secreto (secrets),
