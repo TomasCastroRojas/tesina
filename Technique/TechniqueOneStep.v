@@ -1,10 +1,10 @@
 Require Import Coq.Lists.List.
 
-Require Import Tesina.Machine.Machine.
-Require Import Tesina.Attacker.Attacker.
-Require Import Tesina.Technique.Technique.
-Require Import Tesina.Technique.TechniquePreCondition.
-Require Import Tesina.Technique.TechniquePostCondition.
+Require Import Machine.Machine.
+Require Import Attacker.Attacker.
+Require Import Technique.Technique.
+Require Import Technique.TechniquePreCondition.
+Require Import Technique.TechniquePostCondition.
 
 Inductive one_step : Attacker -> Technique -> (idMachine -> option Machine) -> Attacker -> Prop :=
       | onestep : forall (a: Attacker) (t: Technique) (network: idMachine -> option Machine) (a': Attacker),

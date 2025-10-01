@@ -2,7 +2,7 @@ Require Import Coq.Lists.List.
 Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.EqNat.
 
-Require Import Tesina.Machine.Machine.
+Require Import Machine.Machine.
 
 Section MachineAuxOperations.
 

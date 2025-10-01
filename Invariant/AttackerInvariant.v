@@ -1,15 +1,15 @@
 Require Import Coq.Lists.List.
 
-Require Import Tesina.Machine.Machine.
-Require Import Tesina.Machine.MachineAuxFunctions.
-Require Import Tesina.Attacker.Attacker.
-Require Import Tesina.Technique.Technique.
-Require Import Tesina.Technique.TechniquePreCondition.
-Require Import Tesina.Technique.TechniquePostCondition.
-Require Import Tesina.Technique.TechniqueOneStep.
+Require Import Machine.Machine.
+Require Import Machine.MachineAuxFunctions.
+Require Import Attacker.Attacker.
+Require Import Technique.Technique.
+Require Import Technique.TechniquePreCondition.
+Require Import Technique.TechniquePostCondition.
+Require Import Technique.TechniqueOneStep.
 
-Require Import Tesina.Invariant.AuxLemmas.AuxLemmas.
-Require Import Tesina.Invariant.AuxTactics.
+Require Import Invariant.AuxLemmas.AuxLemmas.
+Require Import Invariant.AuxTactics.
 
 
 Section AttackerInvariant.

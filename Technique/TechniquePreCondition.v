@@ -1,9 +1,9 @@
 Require Import Coq.Lists.List.
 
-Require Import Tesina.Machine.Machine.
-Require Import Tesina.Machine.MachineAuxFunctions.
-Require Import Tesina.Attacker.Attacker.
-Require Import Tesina.Technique.Technique.
+Require Import Machine.Machine.
+Require Import Machine.MachineAuxFunctions.
+Require Import Attacker.Attacker.
+Require Import Technique.Technique.
 
 Section TechniquePreCondition.
 

@@ -1,6 +1,6 @@
 Require Import Coq.Lists.List.
 
-Require Import Tesina.Machine.Machine.
+Require Import Machine.Machine.
 
 Section muSE.
 

@@ -1,8 +1,8 @@
 Require Import Coq.Lists.List.
 
-Require Import Tesina.Machine.Machine.
-Require Import Tesina.Machine.MachineAuxFunctions.
-Require Import Tesina.Attacker.Attacker.
+Require Import Machine.Machine.
+Require Import Machine.MachineAuxFunctions.
+Require Import Attacker.Attacker.
 
 
 (* add_machine_user se 'comporta' como cons *)
