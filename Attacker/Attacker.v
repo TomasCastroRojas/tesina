@@ -18,7 +18,7 @@ Section muSE.
   Definition valid_attacker_i (a: Attacker) (network: network_map) : Prop :=
     forall (m:idMachine) (u:idUser), 
       (In (m,u) (known_machines a)) -> 
-        (exists (mac:Machine), ((enviroment a) m = Some mac)).
+        (exists (mac:Machine), (enviroment a) m = Some mac /\ registered_users mac u).
 
   (* Relaciona secrets con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y path que el atacante obtuvo como secreto (secrets),

@@ -13,17 +13,23 @@ Section TechniquePostCondition.
                                           /\ secrets a' = secrets a
                                           /\ enviroment a' = enviroment a
       | Exploitation_Remote_Services m u m' s' e => secrets a' = secrets a
-                                                    /\ enviroment a' = enviroment a
-                                                    /\ (exists (mac:Machine) 
+                                                    /\ (exists (mac macView:Machine) 
                                                                (serv: Service)
-                                                               (accs: list Account)
+                                                               (accs accsView: list Account)
                                                                (acc: Account)
                                                                (u': idUser), network m' = Some mac
                                                                              /\ (machine_services mac) s' = Some serv
                                                                              /\ (machine_accounts mac) u' = Some accs
+                                                                             /\ (machine_accounts macView) u' = Some accsView
                                                                              /\ In acc accs
                                                                              /\ account_service acc = s'
-                                                                             /\ known_machines a' = add_machine_user (m',u') (known_machines a))
+                                                                             /\ known_machines a' = add_machine_user (m',u') (known_machines a)
+                                                                             /\ enviroment a' = modify_machine m
+                                                                                                               (machine (machine_services macView)
+                                                                                                                        (modify_accounts u (oplusAccounts (cons (account s' None None) nil) accsView) (machine_accounts macView))
+                                                                                                                        (machine_fileSystem macView)
+                                                                                                                        (machine_neighbours macView))
+                                                                                                               (enviroment a))
                                                                                               
       | Unsecured_Credentials m u s => known_machines a' = known_machines a
                                        /\ secrets a' = secrets a
