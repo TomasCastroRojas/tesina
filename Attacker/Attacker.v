@@ -1,6 +1,8 @@
 Require Import Coq.Lists.List.
 
 Require Import Machine.Machine.
+Require Import Machine.MachineValid.
+Require Import Machine.MachineView.
 
 Section muSE.
 
@@ -15,7 +17,7 @@ Section muSE.
   (* Relaciona known_machines con enviroment de un Attacker *)
   (* Para cada par de identificador de máquina y usuario que esta en el area de propagación del atacante (known_machines),
      entonces ese identificador esta definido en las vistas parciales *)
-  Definition valid_attacker_i (a: Attacker) (network: network_map) : Prop :=
+  Definition valid_attacker_i (a: Attacker) : Prop :=
     forall (m:idMachine) (u:idUser), 
       (In (m,u) (known_machines a)) -> 
         (exists (mac:Machine), (enviroment a) m = Some mac /\ registered_users mac u).
@@ -36,8 +38,9 @@ Section muSE.
   (* Relaciona la vista parcial del atacante con la red concreta objetivo *)
   (* Toda máquina con una vista parcial definida tambien esta definida en la red concreta 
      y además las máquinas estan relacionadas (una es 'subconjunto' de la otra)*)
-  Definition valid_attacker_iv (a: Attacker) (network: network_map) : Prop := True.
+  Definition valid_attacker_iv (a: Attacker) (network: network_map) : Prop :=
+    is_networkView (enviroment a) (network).
   
   Definition valid_attacker (a: Attacker) (network: network_map) : Prop :=
-    valid_attacker_i a network /\ valid_attacker_iii a /\ valid_attacker_iii a.
+    valid_attacker_i a /\ valid_attacker_ii a /\ valid_attacker_iii a /\ valid_attacker_iv a network.
 End muSE.

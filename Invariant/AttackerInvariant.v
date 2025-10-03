@@ -15,7 +15,7 @@ Require Import Invariant.AuxTactics.
 Section AttackerInvariant.
   
   Theorem one_step_preserves_valid_attacker_i : forall (a a' : Attacker) (t : Technique) (n: network_map),
-      one_step a t n a' -> valid_attacker_i a' n.
+      one_step a t n a' -> valid_attacker_i a'.
   Proof.
     admit.
   Admitted.
