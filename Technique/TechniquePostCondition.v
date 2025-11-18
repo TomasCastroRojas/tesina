@@ -18,13 +18,14 @@ Section TechniquePostCondition.
                                                                (accs accsView: list Account)
                                                                (acc: Account)
                                                                (u': idUser), network m' = Some mac
+                                                                             /\ enviroment a m' = Some macView
                                                                              /\ (machine_services mac) s' = Some serv
                                                                              /\ (machine_accounts mac) u' = Some accs
                                                                              /\ (machine_accounts macView) u' = Some accsView
                                                                              /\ In acc accs
                                                                              /\ account_service acc = s'
                                                                              /\ known_machines a' = add_machine_user (m',u') (known_machines a)
-                                                                             /\ enviroment a' = modify_machine m
+                                                                             /\ enviroment a' = modify_machine m'
                                                                                                                (machine (machine_services macView)
                                                                                                                         (modify_accounts u (oplusAccounts (cons (account s' None None) nil) accsView) (machine_accounts macView))
                                                                                                                         (machine_fileSystem macView)
