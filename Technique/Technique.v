@@ -22,9 +22,6 @@ Section Techniques.
     | Remote_System_Discovery : idMachine -> idUser -> Technique
     | Account_Discovery_Local : idMachine -> idUser -> idService -> Technique
     | Account_Discovery_Remote : idMachine -> idUser -> idMachine -> idUser -> key -> idService -> Technique
-    | System_Service_Discovery : idMachine -> idUser -> Technique
-    (* Persistence *)
-    | Create_Account : idMachine -> idUser -> idUser -> key -> privilege -> idService -> Technique. 
-    
-    
+    | System_Service_Discovery : idMachine -> idUser -> Technique.
+
 End Techniques.

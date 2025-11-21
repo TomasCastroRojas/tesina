@@ -6,26 +6,23 @@ Require Import Machine.Machine.
 
 Section MachineView.
 
-  Definition subset_services (services1 services2: idService -> option Service) : Prop :=
-    forall (s: idService) (service: Service), services1 s = Some service -> services2 s = Some service.
+  Definition subset_services (services1 services2: list Service) : Prop :=
+    forall (s: Service), In s services1-> In s services2.
 
   Definition account_view (acc1 acc2: Account) : Prop :=
-    account_service acc1 = account_service acc2
+    account_user acc1 = account_user acc2
+    /\ account_service acc1 = account_service acc2
     /\ (account_key acc1 = None \/ account_key acc1 = account_key acc2)
     /\ (account_privilege acc1 = None \/ account_privilege acc1 = account_privilege acc2).
   
-  Definition sublist_accounts (l1 l2: list Account) : Prop :=
+  Definition subset_accounts (l1 l2: list Account) : Prop :=
     forall (acc: Account), In acc l1 -> (In acc l2 \/ (exists (acc': Account), In acc' l2 /\ account_view acc acc')).
-  
-  Definition subset_accounts (users1 users2: idUser -> option (list Account)) : Prop :=
-    forall (u: idUser) (l1 l2: list Account), users1 u = Some l1 -> users2 u = Some l2 -> sublist_accounts l1 l2.
 
-  Definition subset_files (files1 files2: path -> option (list path * list idUser * objective)) : Prop :=
+  Definition subset_files (files1 files2: list File) : Prop :=
     True.
 
   Definition subset_neighbours (l1 l2: list idMachine) : Prop :=
     forall (m: idMachine), In m l1 -> In m l2.
-  
   
   Definition is_machineView (m1 m2: Machine) : Prop :=
     subset_services (machine_services m1) (machine_services m2)

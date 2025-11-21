@@ -26,7 +26,7 @@ Section MachineAuxOperations.
       match l with
         | nil => nil
         | acc::l' => match idService_eq s (account_service acc) with
-                       | left _ => account s (account_key acc) (account_privilege acc) :: get_accounts_linked_service_with_key s l'
+                       | left _ => account (account_user acc) s (account_key acc) (account_privilege acc) :: get_accounts_linked_service_with_key s l'
                        | right _ => get_accounts_linked_service_with_key s l'
                      end
       end.
@@ -35,16 +35,11 @@ Section MachineAuxOperations.
       match l with
         | nil => nil
         | acc::l' => match idService_eq s (account_service acc) with
-                       | left _ => account s None (account_privilege acc) :: get_accounts_linked_service_without_key s l'
+                       | left _ => account (account_user acc) s None (account_privilege acc) :: get_accounts_linked_service_without_key s l'
                        | right _ => get_accounts_linked_service_without_key s l'
                      end
       end.
-      
-    Definition modify_accounts (u: idUser) (l: list Account) (accounts: idUser -> option (list Account)) : idUser -> option (list Account) :=
-      fun id => match idUser_eq id u with
-                  | left _ => Some l
-                  | right _ => accounts id
-                end.
+
     Definition updateAccountKey (k1 k2: option (option key)) : option (option key) :=
       match k1, k2 with
         | None, None => None
@@ -59,31 +54,23 @@ Section MachineAuxOperations.
         | _, _ => l1
       end.
     
-    Fixpoint oplusAccount (acc: Account) (accounts: list Account) : list Account :=
+    Fixpoint addAccount (acc: Account) (accounts: list Account) : list Account :=
       match accounts with
         | nil => cons acc nil
-        | acc':: accs => match idService_eq (account_service acc) (account_service acc') with
-                          | left _ => cons (account (account_service acc)
-                                                    (updateAccountKey (account_key acc') (account_key acc))
-                                                    (updateAccountPrivilege (account_privilege acc') (account_privilege acc)))
-                                           accs
-                          | right _ => cons acc' (oplusAccount acc accs)
+        | acc':: accs => match idUser_eq (account_user acc) (account_user acc'), idService_eq (account_service acc) (account_service acc') with
+                          | left _, left _ => cons (account (account_user acc) 
+                                                            (account_service acc)
+                                                            (updateAccountKey (account_key acc') (account_key acc))
+                                                            (updateAccountPrivilege (account_privilege acc') (account_privilege acc)))
+                                                   accs
+                          | _, _ => cons acc' (addAccount acc accs)
                          end
       end.
-    
-    Definition addAccount (u: idUser) (acc: Account) (accounts: idUser -> option (list Account)) : idUser -> option (list Account) :=           
-      fun id => match idUser_eq u id with
-                  | left _ => match accounts u with
-                                | None => Some (cons acc nil)
-                                | Some l => Some (oplusAccount acc l)
-                              end
-                  | right _ => accounts id
-                end.
     
     Fixpoint oplusAccounts (source dest: list Account) : list Account :=
       match source with
         | nil => dest
-        | acc::accs => oplusAccounts accs (oplusAccount acc dest)
+        | acc::accs => oplusAccounts accs (addAccount acc dest)
       end.
       
     Fixpoint addNeighbour (mac : idMachine) (neighbours: list idMachine) : list idMachine :=
@@ -100,7 +87,8 @@ Section MachineAuxOperations.
         | nil => dest
         | mac::macs => oplusNeighbours macs (addNeighbour mac dest)
       end.
-      
+ 
+(*
     Definition unionServices (s1 s2: idService -> option Service) : idService -> option Service :=
       fun s => match s1 s with
                 | None => s2 s
@@ -239,5 +227,5 @@ Section MachineAuxOperations.
       fun p' => if mem_path p' new_paths
                 then pathInfo filesView files p'
                 else filesView p'.
-                
+*)              
 End MachineAuxOperations.

@@ -13,25 +13,24 @@ Section TechniquePostCondition.
                                           /\ secrets a' = secrets a
                                           /\ enviroment a' = enviroment a
       | Exploitation_Remote_Services m u m' s' e => secrets a' = secrets a
-                                                    /\ (exists (mac macView:Machine) 
-                                                               (serv: Service)
-                                                               (accs accsView: list Account)
-                                                               (acc: Account)
-                                                               (u': idUser), network m' = Some mac
-                                                                             /\ enviroment a m' = Some macView
-                                                                             /\ (machine_services mac) s' = Some serv
-                                                                             /\ (machine_accounts mac) u' = Some accs
-                                                                             /\ (machine_accounts macView) u' = Some accsView
-                                                                             /\ In acc accs
-                                                                             /\ account_service acc = s'
+                                                    /\ (exists (mac' macView' newMacView':Machine) 
+                                                               (acc': Account)
+                                                               (newAccountsView: list Account)
+                                                               (u': idUser), network m' = Some mac'
+                                                                             /\ enviroment a m' = Some macView'
+                                                                             /\ In acc' (machine_accounts mac')
+                                                                             /\ account_user acc' = u'
+                                                                             /\ account_service acc' = s'
                                                                              /\ known_machines a' = add_machine_user (m',u') (known_machines a)
+                                                                             /\ newAccountsView = addAccount (account u' s' None None) (machine_accounts macView')
+                                                                             /\ newMacView' = machine (machine_services macView')
+                                                                                                      newAccountsView
+                                                                                                      (machine_fileSystem macView')
+                                                                                                      (machine_neighbours macView')
                                                                              /\ enviroment a' = modify_machine m'
-                                                                                                               (machine (machine_services macView)
-                                                                                                                        (modify_accounts u (oplusAccounts (cons (account s' None None) nil) accsView) (machine_accounts macView))
-                                                                                                                        (machine_fileSystem macView)
-                                                                                                                        (machine_neighbours macView))
+                                                                                                               newMacView'
                                                                                                                (enviroment a))
-                                                                                              
+(*                                                                                     
       | Unsecured_Credentials m u s => known_machines a' = known_machines a
                                        /\ secrets a' = secrets a
                                        /\ (exists (macView: Machine)
@@ -167,6 +166,8 @@ Section TechniquePostCondition.
                                                                                                                    (machine_neighbours macView))
                                                                                                           (enviroment a))
 
+*)  
+    | _ => True                                                                                                        
     end.
     
 End TechniquePostCondition.

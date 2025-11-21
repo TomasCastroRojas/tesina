@@ -27,27 +27,11 @@ Section Machine.
       
   Record Account : Set :=
       account {
-        account_service  : idService; 
-        account_key : option (option key); 
-        account_privilege : option privilege
+        account_user      : idUser;
+        account_service   : idService; 
+        account_key       : option (option key); 
+        account_privilege : option privilege;
       }.
-      
-  (* Identificador del recurso de un servicio *)
-  Inductive logical_identifier : Set := 
-    | service_port
-    | service_process
-    | service_file.
-
-  Definition logical_identifier_eq (l1 l2: logical_identifier) : bool :=
-    match l1, l2 with
-      | service_port, service_port => true
-      | service_port, _ => false
-      | _, service_port => false
-      | service_process, service_process => true
-      | service_process, _ => false
-      | _, service_process => false
-      | service_file, service_file => true
-    end. 
     
   (* Valor asociado del recurso de un servicio (Numero de puerto, numero de proceso o un archivo)*)
   Parameter serviceValue : Set.
@@ -56,20 +40,25 @@ Section Machine.
   (* Servicios *)
   Record Service : Set :=
     service {
-      logical_ident : logical_identifier;
-      value_s : nat (* Deberia ser serviceValue *) 
-      (* El experimento PWNJUTSU modela principalmente la etapa de propagacion en red del atacante 
-      por lo que en las Techniques siempre se utiliza como logical_ident a un puerto *)
+      service_value : idService;
+      service_port : nat;
     }.
-  
-  Definition is_network_service (s: Service) : Prop := (logical_ident s) = service_port.
+
   (* Rutas del sistema de archivos *)
   Parameter path : Set.
   Parameter path_eq : forall p1 p2 : path, {p1 = p2} + {p1 <> p2}.
-  (* Definir un orden parcial, jerarquía de archivos*)
-  
+
   (* Flag que marca los objetivos del atacante *)
   Definition objective := bool.
+
+  (* Servicios *)
+  Record File : Set :=
+    file {
+      file_path : path;
+      file_subfiles : list path;
+      file_user_access : list idUser;
+      file_objective: objective;
+    }.
     
   (* Identificadores de máquinas *)
   Parameter idMachine : Set.
@@ -83,9 +72,9 @@ Section Machine.
   
   Record Machine : Set :=
     machine {
-      machine_services : idService -> option Service; (* Servicios registrados *)
-      machine_accounts : idUser -> option (list Account); (* Usuarios registrado. Un usuario puede estar suscrito a más de un servicio *)
-      machine_fileSystem : path -> option (list path * list idUser * objective); (* Archivos y directorios de la máquina *)
+      machine_services : list Service; (* Servicios registrados *)
+      machine_accounts : list Account; (* Usuarios registrado. Un usuario puede estar suscrito a más de un servicio *)
+      machine_fileSystem : list File; (* Archivos y directorios de la máquina *)
       machine_neighbours : list idMachine; (* Vecinos *)
     }.
     

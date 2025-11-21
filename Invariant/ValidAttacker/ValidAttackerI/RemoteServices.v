@@ -28,17 +28,17 @@ Lemma one_step_remote_services_preserves_valid_attacker_i : forall (a a' : Attac
     elim known_machines_a'.
     - intro eq.
       elim_intro_clear H0 H4 H0'.
-      elim_intro_clear H0' accs H0''.
-      elim_intro_clear H0'' acc H0'''.
-      elim_intro_clear H0''' mac' H6.
-      elim_intro_clear H6 env_mac' H7.
-      elim_intro_clear H7 accs_mac' H8.
+      elim_intro_clear H0' acc H0''.
+      elim_intro_clear H0'' mac' H0'''.
+      elim_intro_clear H0''' env_mac' H6.
+      elim_intro_clear H6 acc_in_machine H7.
+      elim_intro_clear H7 acc_user H8.
       exists mac'.
       injection eq.
       intros equ' eqm'.
       split.
       -- rewrite <- eqm'. exact env_mac'.
-      -- rewrite <- equ'. unfold registered_users. exists accs. exact accs_mac'.
+      -- rewrite <- equ'. unfold registered_users. exists acc. split; [ exact acc_user |exact acc_in_machine].
     - intro known_machines_a.
       unfold valid_attacker_i in validAttackerI.
       apply validAttackerI.
