@@ -1,4 +1,5 @@
 Require Import Coq.Lists.List.
+Require Import Coq.Logic.Classical_Prop.
 
 Require Import Machine.Machine.
 Require Import Machine.MachineAuxFunctions.
@@ -57,7 +58,82 @@ Require Import Attacker.Attacker.
       -- left. exact H''.
       -- right. right. exact H''.
   Qed.
+
+  Lemma and_cortocircuito : forall (A B: Prop), A \/ (B /\ False) <-> A \/ False.
+  Proof.
+    intros.
+    split.
+    - intro H.
+      elim H.
+      -- intro H1. left. exact H1.
+      -- intro H1. elim H1. intros H2 H3. right. exact H3.
+    - intro H.
+      elim H.
+      -- intro H1. left. exact H1.
+      -- intro H1. contradiction.
+  Qed.
   
+
+  
+  Lemma neq_tuple_first : forall (A B: Type) (a c: A) (b d: B),
+   a <> c -> (a, b) <> (c, d).
+  Proof.
+    intros.
+    unfold not.
+    unfold not in H.
+    intro eq_tuple.
+    apply H.
+    injection eq_tuple.
+    intros.
+    exact H1.
+  Qed.
+
+  Lemma neq_tuple_second : forall (A B: Type) (a c: A) (b d: B),
+   b <> d -> (a, b) <> (c, d).
+  Proof.
+    intros.
+    unfold not.
+    unfold not in H.
+    intro eq_tuple.
+    apply H.
+    injection eq_tuple.
+    intros.
+    exact H0.
+  Qed.
+
+  Lemma neq_tuple1 : forall (A B: Type) (a c: A) (b d: B),
+   a <> c \/ b <> d -> (a, b) <> (c, d).
+  Proof.
+    intros.
+    elim H.
+    - apply neq_tuple_first.
+    - apply neq_tuple_second.
+  Qed.
+  
+  Lemma neq_tuple_discard : forall (A B: Type) (a c: A) (b d: B),
+   (a, b) <> (c, d) -> a = c -> b <> d.
+  Proof.
+  Admitted.
+
+  Lemma neq_tuple2 : forall (A B: Type) (a c: A) (b d: B),
+   (a, b) <> (c, d) -> a <> c \/ b <> d.
+  Proof.
+    intros.
+    elim (classic (a<>c)).
+    - intro. left. assumption.
+    - intro. right. unfold not in H0. apply (neq_tuple_discard A B a c b d). exact H. apply NNPP in H0. exact H0.
+  Qed.
+
+  Lemma neq_tuple : forall (A B: Type) (a c: A) (b d: B),
+   (a, b) <> (c, d) <-> a <> c \/ b <> d.
+  Proof.
+    intros.
+    split.
+    - apply neq_tuple2.
+    - apply neq_tuple1.
+  Qed.
+
+
   Lemma member_add_machine_user : forall (m m': idMachine) (u u':idUser) (l: list (idMachine * idUser)),
     In (m,u) (add_machine_user (m', u') l) <-> ((m', u') = (m, u) \/ In (m, u) l).
   Proof.
@@ -85,3 +161,47 @@ Require Import Attacker.Attacker.
         --- left. exact H'.
         --- right. apply IHl. exact H'.
   Qed.
+
+  Lemma member_addAccount : forall (a: Account) (l: list Account),
+      In a (addAccount a l) <-> True.
+  Proof.
+    intros.
+    induction l; simpl; split.
+    - auto.
+    - auto.
+    - destruct a as [u s k p].
+      destruct a0 as [u0 s0 k0 p0].
+      simpl.
+      case (idUser_eq u u0); case (idService_eq s s0); intros; auto.
+    - intro.
+      destruct a as [u s k p].
+      destruct a0 as [u0 s0 k0 p0].
+      simpl.
+      case (idUser_eq u u0); intro.
+      -- case (idService_eq s s0); intros.
+         --- simpl.
+             left.
+             reflexivity.
+         --- simpl.
+             right.
+             apply IHl. auto.
+      -- simpl.
+         right.
+         apply IHl. auto.
+  Qed.
+
+  Lemma enviroment_eq : forall (env env': network_map) (m m': idMachine) (mac: Machine),
+    m <> m' -> env' = modify_machine m' mac env -> env' m = env m.
+  Proof.
+    intros.
+    rewrite H0.
+    unfold modify_machine.
+    case (idMachine_eq m m').
+    - intro. contradiction.
+    - intro. reflexivity.
+  Qed.
+
+  
+      
+
+       

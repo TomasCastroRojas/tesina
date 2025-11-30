@@ -14,7 +14,7 @@ Section TechniquePostCondition.
                                           /\ enviroment a' = enviroment a
       | Exploitation_Remote_Services m u m' s' e => secrets a' = secrets a
                                                     /\ (exists (mac' macView' newMacView':Machine) 
-                                                               (acc': Account)
+                                                               (acc' newAcc': Account)
                                                                (newAccountsView: list Account)
                                                                (u': idUser), network m' = Some mac'
                                                                              /\ enviroment a m' = Some macView'
@@ -22,7 +22,8 @@ Section TechniquePostCondition.
                                                                              /\ account_user acc' = u'
                                                                              /\ account_service acc' = s'
                                                                              /\ known_machines a' = add_machine_user (m',u') (known_machines a)
-                                                                             /\ newAccountsView = addAccount (account u' s' None None) (machine_accounts macView')
+                                                                             /\ newAcc' = account u' s' None None
+                                                                             /\ newAccountsView = addAccount newAcc' (machine_accounts macView')
                                                                              /\ newMacView' = machine (machine_services macView')
                                                                                                       newAccountsView
                                                                                                       (machine_fileSystem macView')

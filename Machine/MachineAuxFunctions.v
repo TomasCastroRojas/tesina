@@ -39,20 +39,6 @@ Section MachineAuxOperations.
                        | right _ => get_accounts_linked_service_without_key s l'
                      end
       end.
-
-    Definition updateAccountKey (k1 k2: option (option key)) : option (option key) :=
-      match k1, k2 with
-        | None, None => None
-        | None, Some _ => k2
-        | _, _ => k1
-      end.
-    
-    Definition updateAccountPrivilege (l1 l2: option privilege) : option privilege :=
-      match l1, l2 with
-        | None, None => None
-        | None, Some _ => l2
-        | _, _ => l1
-      end.
     
     Fixpoint addAccount (acc: Account) (accounts: list Account) : list Account :=
       match accounts with
@@ -60,8 +46,8 @@ Section MachineAuxOperations.
         | acc':: accs => match idUser_eq (account_user acc) (account_user acc'), idService_eq (account_service acc) (account_service acc') with
                           | left _, left _ => cons (account (account_user acc) 
                                                             (account_service acc)
-                                                            (updateAccountKey (account_key acc') (account_key acc))
-                                                            (updateAccountPrivilege (account_privilege acc') (account_privilege acc)))
+                                                            (account_key acc)
+                                                            (account_privilege acc))
                                                    accs
                           | _, _ => cons acc' (addAccount acc accs)
                          end
