@@ -190,6 +190,12 @@ Require Import Attacker.Attacker.
          apply IHl. auto.
   Qed.
 
+  Lemma member_addAccount_simpl : forall (a a': Account) (l: list Account),
+      In a (addAccount a' l) <-> a' = a \/ In a l.
+  Proof.
+    (* TODO *)
+  Admitted.
+
   Lemma enviroment_eq : forall (env env': network_map) (m m': idMachine) (mac: Machine),
     m <> m' -> env' = modify_machine m' mac env -> env' m = env m.
   Proof.
@@ -199,6 +205,21 @@ Require Import Attacker.Attacker.
     case (idMachine_eq m m').
     - intro. contradiction.
     - intro. reflexivity.
+  Qed.
+
+  Lemma option_eq : forall (A: Type) (a a': A), Some a = Some a' -> a = a'.
+  Proof.
+    intros.
+    congruence.
+  Qed.
+  
+  Lemma enviroment_map_image : forall (env: network_map) (m: idMachine) (mac1 mac2: Machine),
+    env m = Some mac1 -> env m = Some mac2 -> mac1 = mac2.
+  Proof.
+    intros.
+    apply (option_eq Machine).
+    rewrite H in H0.
+    exact H0.
   Qed.
 
   
