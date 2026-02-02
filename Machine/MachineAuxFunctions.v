@@ -74,12 +74,22 @@ Section MachineAuxOperations.
         | mac::macs => oplusNeighbours macs (addNeighbour mac dest)
       end.
  
+    Fixpoint addService (s: Service) (l: list Service) : list Service :=
+      match l with
+        | nil => cons s l
+        | s'::l' => match idService_eq (service_value s) (service_value s') with
+                      | left _ => l
+                      | right _ => cons s' (addService s l')
+                    end
+      end.
+
+    Fixpoint oplusServices (source dest: list Service) : list Service :=
+      match source with
+        | nil => dest
+        | s::ss => oplusServices ss (addService s dest)
+      end.
+
 (*
-    Definition unionServices (s1 s2: idService -> option Service) : idService -> option Service :=
-      fun s => match s1 s with
-                | None => s2 s
-                | Some serv => Some serv
-               end.
     
     Fixpoint elem_mem_nat (n: nat) (l: list nat) : bool :=
       match l with
