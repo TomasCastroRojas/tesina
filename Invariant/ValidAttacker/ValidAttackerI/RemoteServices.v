@@ -12,7 +12,7 @@ Require Import Invariant.AuxLemmas.AuxLemmas.
 Require Import Invariant.AuxTactics.
 
 Lemma one_step_remote_services_preserves_valid_attacker_i : forall (a a' : Attacker) (n: network_map) (aValid: valid_attacker a n) (m m': idMachine) (u u': idUser) (k': key) (s': idService),
-      valid_network n -> Pre a (Remote_Services m u m' u' k' s') -> Post a (Remote_Services m u m' u' k' s') n a' -> valid_attacker_i a'.
+      valid_concrete_network n -> Pre a (Remote_Services m u m' u' k' s') -> Post a (Remote_Services m u m' u' k' s') n a' -> valid_attacker_i a'.
   Proof.
     intros a a' network validAttacker m m' u u' k' s' validNetwork pre post.
     unfold valid_attacker_i.

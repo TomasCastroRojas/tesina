@@ -12,6 +12,9 @@ Require Import Technique.TechniqueOneStep.
 Require Import Invariant.AuxLemmas.AuxLemmas.
 Require Import Invariant.AuxTactics.
 
+Require Import Invariant.ValidAttacker.ValidAttackerII.RemoteServices.
+Require Import Invariant.ValidAttacker.ValidAttackerII.ExploitationRemoteServices.
+
 Theorem one_step_preserves_valid_attacker_ii : forall (a a' : Attacker) (t : Technique) (n: network_map),
       one_step a t n a' -> valid_attacker_ii a'.
   Proof.
@@ -19,5 +22,6 @@ Theorem one_step_preserves_valid_attacker_ii : forall (a a' : Attacker) (t : Tec
     destruct onestep.
     induction t; unfold valid_attacker in H0; unfold valid_concrete_network in H;
     unfold Pre in H1; unfold Post in H2; unfold valid_attacker_ii.
-    
+    - apply (one_step_remote_services_preserves_valid_attacker_ii a a' network H0 i i1 i0 i2 k i3); auto.
+    - apply (one_step_exploitation_remote_services_preserves_valid_attacker_ii a a' network H0 i i1 i0 i2 i3); auto.
   Admitted.

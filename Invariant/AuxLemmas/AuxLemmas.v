@@ -222,6 +222,21 @@ Require Import Attacker.Attacker.
     exact H0.
   Qed.
 
+  Lemma enviroment_simpl : forall (env env': network_map) (m m': idMachine) (m0 mac: Machine),
+    m = m' -> env' = (modify_machine m' mac env) -> env' m = Some m0 -> m0 = mac.
+  Proof.
+    intros.
+    assert (env' m = Some mac).
+    rewrite H0.
+    unfold modify_machine.
+    case (idMachine_eq m m'); intro eq_m.
+    - reflexivity.
+    - contradiction.
+    - rewrite H1 in H2.
+    apply option_eq.
+    exact H2.
+  Qed.
+
   
       
 

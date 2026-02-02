@@ -33,8 +33,7 @@ Section Predicados.
   
   (* Para toda maquina que pertenece a la red, todos sus vecinos tambien pertenecen a la red y ella es vecina de ellos *)
   Definition network_topology (network: network_map) : Prop :=
-    forall (mid: idMachine)(m: Machine), network mid = Some m -> 
-        forall (neighbour: idMachine), is_neighbour m neighbour 
+    forall (mid neighbour: idMachine)(m: Machine), mid <> neighbour -> network mid = Some m -> is_neighbour m neighbour 
           -> (exists (m':Machine), network neighbour = Some m' /\ is_neighbour m' mid).
           
   Definition valid_machine (m: Machine) : Prop :=
