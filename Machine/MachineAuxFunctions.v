@@ -83,10 +83,10 @@ Section MachineAuxOperations.
                     end
       end.
 
-    Fixpoint oplusServices (source dest: list Service) : list Service :=
+    Fixpoint oplusServices (dest source: list Service) : list Service :=
       match source with
         | nil => dest
-        | s::ss => oplusServices ss (addService s dest)
+        | s::ss => oplusServices (addService s dest) ss
       end.
 
 (*

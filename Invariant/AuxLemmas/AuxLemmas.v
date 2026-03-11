@@ -191,10 +191,74 @@ Require Import Attacker.Attacker.
   Qed.
 
   Lemma member_addAccount_simpl : forall (a a': Account) (l: list Account),
-      In a (addAccount a' l) <-> a' = a \/ In a l.
+      In a (addAccount a' l) -> a' = a \/ In a l.
   Proof.
-    (* TODO *)
-  Admitted.
+    intros a a'.
+  induction l as [| acc' accs IH].
+
+  - (* l = [] : addAccount a' [] = [a'] *)
+    simpl.
+    intros [H | []].
+    left.  exact H.
+
+  - (* l = acc' :: accs *)
+    destruct a'   as [u' s' k' p'].
+    destruct acc' as [u0 s0 k0 p0].
+    simpl.
+    destruct (idUser_eq u' u0) as [Heq_u | Hneq_u];
+    destruct (idService_eq s' s0) as [Heq_s | Hneq_s]; simpl.
+
+    + (* mismo user y service: addAccount reemplaza acc' por a' *)
+      (* resultado: (account u' s' k' p') :: accs = a' :: accs *)
+      intros [H | H].
+      * left. exact H.        (* a = a' *)
+      * right. right. exact H.          (* In a accs -> In a (acc'::accs) *)
+
+    + (* mismo user, distinto service: cons acc', recursión *)
+      intros [H | H].
+      * right. left. exact H.           (* a = acc' *)
+      * apply IH in H.
+        destruct H as [H | H].
+        -- left. exact H.               (* a' = a por IH *)
+        -- right. right. exact H.       (* In a accs *)
+
+    + (* distinto user: cons acc', recursión *)
+      intros [H | H].
+      * right. left. exact H.
+      * apply IH in H.
+        destruct H as [H | H].
+        -- left. exact H.
+        -- right. right. exact H.
+
+    + (* distinto user y service: cons acc', recursión *)
+      intros [H | H].
+      * right. left. exact H.
+      * apply IH in H.
+        destruct H as [H | H].
+        -- left. exact H.
+        -- right. right. exact H.
+  Qed.
+
+  Lemma addAccount_preserves_membership_when_neq : forall (a a': Account) (l: list Account),
+    (account_user a <> account_user a') -> In a l -> In a (addAccount a' l).
+  Proof.
+    intros a a'.
+    induction l as [| acc accs IH].
+    - intros. simpl. auto.
+    - intros Hneq Hin.
+      simpl in *.
+      destruct (idUser_eq (account_user a') (account_user acc)) as [ Heq_u | Hneq_u];
+      destruct (idService_eq (account_service a') (account_service acc)) as [ Heq_s | Hneq_s];
+      simpl; destruct Hin as [ Heq | Hin'].
+      -- exfalso. apply Hneq. rewrite <- Heq. symmetry. exact Heq_u.
+      -- right. exact Hin'.
+      -- left. exact Heq.
+      -- right. apply IH; assumption.
+      -- left. exact Heq.
+      -- right. apply IH; assumption.
+      -- left. exact Heq.
+      -- right. apply IH; assumption.
+  Qed.
 
   Lemma enviroment_eq : forall (env env': network_map) (m m': idMachine) (mac: Machine),
     m <> m' -> env' = modify_machine m' mac env -> env' m = env m.
@@ -235,6 +299,36 @@ Require Import Attacker.Attacker.
     - rewrite H1 in H2.
     apply option_eq.
     exact H2.
+  Qed.
+
+
+  Lemma addService_preserves_membership : forall (a b: Service) (l: list Service),
+    In a l -> In a (addService b l).
+  Proof.
+    intros.
+    induction l; simpl.
+    - auto.
+    - case (idService_eq (service_value b) (service_value a0)); intros eq_serv.
+      -- exact H.
+      -- simpl in *.
+         elim H; intro H'.
+         --- left. exact H'.
+         --- right. apply IHl. exact H'.
+  Qed.
+
+  
+  Lemma oplusServices_preserves_membership : forall (s: Service) (l1 l2: list Service),
+    In s l1 -> In s (oplusServices l1 l2).
+  Proof.
+    intros s l1 l2.
+    revert l1.
+    induction l2 as [| a l2' IH].
+    - auto.
+    - intros l H.
+      simpl.
+      apply IH.
+      apply addService_preserves_membership.
+      exact H.
   Qed.
 
   

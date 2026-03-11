@@ -31,7 +31,7 @@ Section Predicados.
   Definition users_access_to_services (m: Machine) : Prop :=
     forall (a: Account), In a (machine_accounts m) -> registered_service m (account_service a).
   
-  (* Para toda maquina que pertenece a la red, todos sus vecinos tambien pertenecen a la red y ella es vecina de ellos *)
+  (* Para toda maquina que pertenece a la red, todos sus vecinos tambien pertenecen a la red *)
   Definition network_topology (network: network_map) : Prop :=
     forall (mid neighbour: idMachine)(m: Machine), mid <> neighbour -> network mid = Some m -> is_neighbour m neighbour 
           -> exists (m':Machine), network neighbour = Some m'.

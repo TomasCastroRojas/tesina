@@ -80,6 +80,7 @@ Section TechniquePostCondition.
                                        /\ (exists (macView newMacView mac: Machine)
                                                   (newNeighbours: list idMachine), (enviroment a) m = Some macView
                                                                                     /\ network m = Some mac
+                                                                                    (* TODO: Agregar condicion que los identificadores agregados deben estar previamente definidos en el mapping de la vista parcial *)
                                                                                     /\ newNeighbours = oplusNeighbours (machine_neighbours macView) (machine_neighbours mac)
                                                                                     /\ newMacView = machine (machine_services macView)
                                                                                                             (machine_accounts macView)
@@ -119,17 +120,21 @@ Section TechniquePostCondition.
                                                                                                                                      (machine_fileSystem macView')
                                                                                                                                      (machine_neighbours macView'))
                                                                                                                             (enviroment a))
+*)
       | System_Service_Discovery m u => known_machines a' = known_machines a
                                         /\ secrets a' = secrets a
-                                        /\ (exists (mac: Machine)
-                                                   (macView: Machine), (enviroment a) m = Some macView
-                                                                           /\ network m = Some mac
-                                                                           /\ enviroment a' = modify_machine m 
-                                                                                                             (machine (unionServices (machine_services macView) (machine_services mac))
-                                                                                                                      (machine_accounts macView)
-                                                                                                                      (machine_fileSystem macView)
-                                                                                                                      (machine_neighbours macView))
-                                                                                                             (enviroment a))
+                                        /\ (exists (mac macView newMacView: Machine)
+                                                   (services servicesView servicesNewView: list Service), (enviroment a) m = Some macView
+                                                                                                            /\ network m = Some mac
+                                                                                                            /\ servicesView = machine_services macView
+                                                                                                            /\ services = machine_services mac
+                                                                                                            /\ servicesNewView = oplusServices servicesView services
+                                                                                                            /\ newMacView = machine servicesNewView
+                                                                                                                                    (machine_accounts macView)
+                                                                                                                                    (machine_fileSystem macView)
+                                                                                                                                    (machine_neighbours macView)
+                                                                                                            /\ enviroment a' = modify_machine m newMacView (enviroment a))
+(*
 
       | Network_Service_Scanning m u m' l => known_machines a' = known_machines a
                                              /\ secrets a' = secrets a
