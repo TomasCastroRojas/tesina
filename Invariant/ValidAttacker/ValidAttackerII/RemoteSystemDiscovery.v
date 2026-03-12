@@ -26,12 +26,15 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_ii : forall (a a
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' mac H0''''.
-    elim_intro_clear H0'''' newNeighbours H1.
+    elim_intro_clear H0'''' newNeighbours H0'''''.
+    elim_intro_clear H0''''' macNeighbours H1.
 
     elim_intro_clear H1 env_m H1'.
     elim_intro_clear H1' network_m H1''.
-    elim_intro_clear H1'' newNeighbours_eq H1'''.
-    elim_intro_clear H1''' newMacView_eq env_a'.
+    elim_intro_clear H1'' macNeighbours_eq H1'''.
+    elim_intro_clear H1''' macNeighbours_closure H1''''.
+    elim_intro_clear H1'''' newNeighbours_eq H1'''''.
+    elim_intro_clear H1''''' newMacView_eq env_a'.
 
     unfold valid_attacker_ii in validAttackerII.
     elim (validAttackerII m0 p0).

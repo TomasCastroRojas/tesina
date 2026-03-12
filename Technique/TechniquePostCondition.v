@@ -78,10 +78,12 @@ Section TechniquePostCondition.
       | Remote_System_Discovery m u => known_machines a' = known_machines a
                                        /\ secrets a' = secrets a
                                        /\ (exists (macView newMacView mac: Machine)
-                                                  (newNeighbours: list idMachine), (enviroment a) m = Some macView
+                                                  (newNeighbours macNeighbours: list idMachine), (enviroment a) m = Some macView
                                                                                     /\ network m = Some mac
+                                                                                    /\ macNeighbours = (machine_neighbours mac)
+                                                                                    /\ (forall (n: idMachine), In n macNeighbours -> (exists (mac0: Machine), (enviroment a) n = Some mac0))
                                                                                     (* TODO: Agregar condicion que los identificadores agregados deben estar previamente definidos en el mapping de la vista parcial *)
-                                                                                    /\ newNeighbours = oplusNeighbours (machine_neighbours macView) (machine_neighbours mac)
+                                                                                    /\ newNeighbours = oplusNeighbours (machine_neighbours macView) macNeighbours
                                                                                     /\ newMacView = machine (machine_services macView)
                                                                                                             (machine_accounts macView)
                                                                                                             (machine_fileSystem macView)

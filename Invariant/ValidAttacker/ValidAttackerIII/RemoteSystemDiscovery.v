@@ -26,24 +26,52 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iii : forall (a 
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' mac H0''''.
-    elim_intro_clear H0'''' newNeighbours H1.
+    elim_intro_clear H0'''' newNeighbours H0'''''.
+    elim_intro_clear H0''''' macNeighbours H1.
 
     elim_intro_clear H1 env_m H1'.
     elim_intro_clear H1' network_m H1''.
-    elim_intro_clear H1'' newNeighbours_eq H1'''.
-    elim_intro_clear H1''' newMacView_eq env_a'.
+    elim_intro_clear H1'' macNeighbours_eq H1'''.
+    elim_intro_clear H1''' macNeighbours_closure H1''''.
+    elim_intro_clear H1'''' newNeighbours_eq H1'''''.
+    elim_intro_clear H1''''' newMacView_eq env_a'.
 
     unfold valid_attacker_iii in validAttackerIII.
     unfold valid_network in validAttackerIII.
     elim_intro_clear validAttackerIII network_top_enva valid_machine_enva.
-    unfold network_topology in network_top_enva.
+    unfold network_topology in *.
 
     split.
-    - unfold network_topology.
-      intros m' vecino MAC eq_m' enva'_m' is_vecino.
+    - intros.
       rewrite env_a'.
       unfold modify_machine.
-      admit.
+      case (idMachine_eq neighbour m); case (idMachine_eq mid m); intros eq_mid eq_neigh.
+      -- exists newMacView; auto.
+      -- exists newMacView; auto.
+      -- assert (Hm0: m0 = newMacView).
+         --- apply (enviroment_simpl (enviroment a) (enviroment a') mid m).
+             ---- exact eq_mid.
+             ---- exact env_a'.
+             ---- exact H1.
+         --- rewrite Hm0 in H2.
+             rewrite newMacView_eq in H2.
+             unfold is_neighbour in H2.
+             simpl in H2.
+             rewrite newNeighbours_eq in H2.
+             apply oplusNeighbours_membership in H2.
+             destruct H2 as [ H2_view | H2_mac ].
+             ---- apply (network_top_enva m neighbour macView).
+                  ----- intro contra. symmetry in contra. exact (eq_neigh contra).
+                  ----- exact env_m.
+                  ----- unfold is_neighbour. exact H2_view.
+             ---- exact (macNeighbours_closure neighbour H2_mac).
+      -- apply (network_top_enva mid neighbour m0).
+         --- exact H0.
+         --- rewrite <- (enviroment_eq (enviroment a) (enviroment a') mid m newMacView).
+             ---- exact H1.
+             ---- exact eq_mid.
+             ---- exact env_a'.
+         --- exact H2.
     - intros m' mac' enva'_m'.
       case (idMachine_eq m' m); intros eq_m'.
       -- assert (mac' = newMacView).
@@ -84,4 +112,4 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iii : forall (a 
              ---- exact enva'_m'.
              ---- exact eq_m'.
              ---- exact env_a'.
-  Admitted.
+  Qed.
