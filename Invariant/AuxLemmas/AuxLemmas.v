@@ -72,67 +72,6 @@ Require Import Attacker.Attacker.
       -- intro H1. left. exact H1.
       -- intro H1. contradiction.
   Qed.
-  
-
-  
-  Lemma neq_tuple_first : forall (A B: Type) (a c: A) (b d: B),
-   a <> c -> (a, b) <> (c, d).
-  Proof.
-    intros.
-    unfold not.
-    unfold not in H.
-    intro eq_tuple.
-    apply H.
-    injection eq_tuple.
-    intros.
-    exact H1.
-  Qed.
-
-  Lemma neq_tuple_second : forall (A B: Type) (a c: A) (b d: B),
-   b <> d -> (a, b) <> (c, d).
-  Proof.
-    intros.
-    unfold not.
-    unfold not in H.
-    intro eq_tuple.
-    apply H.
-    injection eq_tuple.
-    intros.
-    exact H0.
-  Qed.
-
-  Lemma neq_tuple1 : forall (A B: Type) (a c: A) (b d: B),
-   a <> c \/ b <> d -> (a, b) <> (c, d).
-  Proof.
-    intros.
-    elim H.
-    - apply neq_tuple_first.
-    - apply neq_tuple_second.
-  Qed.
-  
-  Lemma neq_tuple_discard : forall (A B: Type) (a c: A) (b d: B),
-   (a, b) <> (c, d) -> a = c -> b <> d.
-  Proof.
-  Admitted.
-
-  Lemma neq_tuple2 : forall (A B: Type) (a c: A) (b d: B),
-   (a, b) <> (c, d) -> a <> c \/ b <> d.
-  Proof.
-    intros.
-    elim (classic (a<>c)).
-    - intro. left. assumption.
-    - intro. right. unfold not in H0. apply (neq_tuple_discard A B a c b d). exact H. apply NNPP in H0. exact H0.
-  Qed.
-
-  Lemma neq_tuple : forall (A B: Type) (a c: A) (b d: B),
-   (a, b) <> (c, d) <-> a <> c \/ b <> d.
-  Proof.
-    intros.
-    split.
-    - apply neq_tuple2.
-    - apply neq_tuple1.
-  Qed.
-
 
   Lemma member_add_machine_user : forall (m m': idMachine) (u u':idUser) (l: list (idMachine * idUser)),
     In (m,u) (add_machine_user (m', u') l) <-> ((m', u') = (m, u) \/ In (m, u) l).
@@ -196,42 +135,35 @@ Require Import Attacker.Attacker.
     intros a a'.
   induction l as [| acc' accs IH].
 
-  - (* l = [] : addAccount a' [] = [a'] *)
-    simpl.
+  - simpl.
     intros [H | []].
     left.  exact H.
 
-  - (* l = acc' :: accs *)
-    destruct a'   as [u' s' k' p'].
+  - destruct a'   as [u' s' k' p'].
     destruct acc' as [u0 s0 k0 p0].
     simpl.
     destruct (idUser_eq u' u0) as [Heq_u | Hneq_u];
     destruct (idService_eq s' s0) as [Heq_s | Hneq_s]; simpl.
 
-    + (* mismo user y service: addAccount reemplaza acc' por a' *)
-      (* resultado: (account u' s' k' p') :: accs = a' :: accs *)
-      intros [H | H].
-      * left. exact H.        (* a = a' *)
-      * right. right. exact H.          (* In a accs -> In a (acc'::accs) *)
+    + intros [H | H].
+      * left. exact H.
+      * right. right. exact H. 
 
-    + (* mismo user, distinto service: cons acc', recursión *)
-      intros [H | H].
-      * right. left. exact H.           (* a = acc' *)
-      * apply IH in H.
-        destruct H as [H | H].
-        -- left. exact H.               (* a' = a por IH *)
-        -- right. right. exact H.       (* In a accs *)
-
-    + (* distinto user: cons acc', recursión *)
-      intros [H | H].
+    + intros [H | H].
       * right. left. exact H.
       * apply IH in H.
         destruct H as [H | H].
         -- left. exact H.
         -- right. right. exact H.
 
-    + (* distinto user y service: cons acc', recursión *)
-      intros [H | H].
+    + intros [H | H].
+      * right. left. exact H.
+      * apply IH in H.
+        destruct H as [H | H].
+        -- left. exact H.
+        -- right. right. exact H.
+
+    + intros [H | H].
       * right. left. exact H.
       * apply IH in H.
         destruct H as [H | H].
