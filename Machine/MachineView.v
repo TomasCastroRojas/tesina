@@ -14,12 +14,18 @@ Section MachineView.
     /\ account_service acc1 = account_service acc2
     /\ (account_key acc1 = None \/ account_key acc1 = account_key acc2)
     /\ (account_privilege acc1 = None \/ account_privilege acc1 = account_privilege acc2).
+
+  Definition file_view (file1 file2: File) : Prop :=
+    file_path file1 = file_path file2
+    /\ file_objective file1 = file_objective file2
+    /\ (forall (p: path), In p (file_subfiles file1) -> In p (file_subfiles file2))
+    /\ (forall (u: idUser), In u (file_user_access file1) -> In u (file_user_access file2)).
   
   Definition subset_accounts (l1 l2: list Account) : Prop :=
     forall (acc: Account), In acc l1 -> (In acc l2 \/ (exists (acc': Account), In acc' l2 /\ account_view acc acc')).
 
   Definition subset_files (files1 files2: list File) : Prop :=
-    True.
+    forall (f: File), In f files1 -> (In f files2 \/ (exists (f': File), In f' files2 /\ file_view f f')).
 
   Definition subset_neighbours (l1 l2: list idMachine) : Prop :=
     forall (m: idMachine), In m l1 -> In m l2.
