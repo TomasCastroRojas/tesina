@@ -4,7 +4,6 @@ Require Import Machine.Machine.
 Require Import Machine.MachineValid.
 Require Import Machine.MachineAuxFunctions.
 Require Import Machine.MachineView.
-
 Require Import Attacker.Attacker.
 Require Import Technique.Technique.
 Require Import Technique.TechniquePreCondition.
@@ -13,8 +12,8 @@ Require Import Technique.TechniquePostCondition.
 Require Import Invariant.AuxLemmas.AuxLemmas.
 Require Import Invariant.AuxTactics.
 
-Lemma one_step_remote_system_discovery_preserves_valid_attacker_iv : forall (a a' : Attacker) (n: network_map) (aValid: valid_attacker a n) (m : idMachine) (u: idUser),
-      valid_concrete_network n -> Pre a (Remote_System_Discovery m u) -> Post a (Remote_System_Discovery m u) n a' -> valid_attacker_iv a' n.
+Lemma one_step_system_service_discovery_preserves_valid_attacker_iv : forall (a a' : Attacker) (n: network_map) (aValid: valid_attacker a n) (m : idMachine) (u : idUser),
+      valid_concrete_network n -> Pre a (System_Service_Discovery m u) -> Post a (System_Service_Discovery m u) n a' -> valid_attacker_iv a' n.
   Proof.
     intros a a' network validAttacker m u validNetwork pre post.
     unfold valid_attacker_iv.
@@ -26,17 +25,18 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iv : forall (a a
     clear validAttackerI validAttackerII validAttackerIII.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' macView H0''.
-    elim_intro_clear H0'' newMacView H0'''.
-    elim_intro_clear H0''' mac H0''''.
-    elim_intro_clear H0'''' newNeighbours H0'''''.
-    elim_intro_clear H0''''' macNeighbours H1.
+    elim_intro_clear H0' mac H0''.
+    elim_intro_clear H0'' macView H0'''.
+    elim_intro_clear H0''' newMacView H0''''.
+    elim_intro_clear H0'''' services H0'''''.
+    elim_intro_clear H0''''' servicesView H0''''''.
+    elim_intro_clear H0'''''' servicesNewView H1.
 
     elim_intro_clear H1 env_m H1'.
     elim_intro_clear H1' network_m H1''.
-    elim_intro_clear H1'' macNeighbours_eq H1'''.
-    elim_intro_clear H1''' macNeighbours_closure H1''''.
-    elim_intro_clear H1'''' newNeighbours_eq H1'''''.
+    elim_intro_clear H1'' servicesView_eq H1'''.
+    elim_intro_clear H1''' services_eq H1''''.
+    elim_intro_clear H1'''' servicesNewView_eq H1'''''.
     elim_intro_clear H1''''' newMacView_eq env_a'.
 
     unfold valid_attacker_iv in validAttackerIV.
@@ -68,7 +68,14 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iv : forall (a a
     - unfold subset_services in *.
       rewrite newMacView_eq.
       simpl.
-      exact Hserv.
+      rewrite servicesNewView_eq.
+      rewrite services_eq.
+      intros s' Hin_oplus.
+      apply oplusServices_membership in Hin_oplus.
+      rewrite servicesView_eq in Hin_oplus.
+      destruct Hin_oplus as [ Hin_macView | Hin_mac ].
+      -- apply Hserv. exact Hin_macView.
+      -- exact Hin_mac.
     - unfold subset_accounts in *.
       rewrite newMacView_eq.
       simpl.
@@ -80,14 +87,7 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iv : forall (a a
     - unfold subset_neighbours in *.
       rewrite newMacView_eq.
       simpl.
-      rewrite newNeighbours_eq.
-      intros m' Hin_oplus.
-      apply oplusNeighbours_membership in Hin_oplus.
-      destruct Hin_oplus as [ Hin_macView | Hin_mac ].
-      -- apply Hneighs.
-         exact Hin_macView.
-      -- rewrite macNeighbours_eq in Hin_mac.
-         exact Hin_mac.
+      exact Hneighs.
     - rewrite <- eq_m0 in env_m. exact env_m.
     - rewrite <- eq_m0 in network_m. exact network_m.
     - elim (validAttackerIV m0 mac1 mac2).

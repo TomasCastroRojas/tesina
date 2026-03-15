@@ -263,6 +263,41 @@ Require Import Attacker.Attacker.
       exact H.
   Qed.
 
+  Lemma or_assoc : forall A B C : Prop, (A \/ (B \/ C)) <-> ((A \/ B) \/ C).
+Proof.
+  admit.
+Admitted.
+  
+  Lemma addService_membership : forall (s s': Service) (l: list Service),
+    In s (addService s' l) -> s' = s \/ In s l.
+  Proof.
+    intros s s' l.
+    induction l as [| s0 l' IH]; simpl.
+    - auto.
+    - case (idService_eq (service_value s') (service_value s0)); intros eq_s0 H; simpl in *.
+      -- right. exact H.
+      -- apply disjuction_commutative.
+         destruct H as [ Heq | Hin].
+         --- left. exact Heq.
+         --- right. apply IH. exact Hin.
+  Qed.
+
+Lemma oplusServices_membership : forall (s: Service) (l1 l2: list Service),
+    In s (oplusServices l1 l2) -> In s l1 \/ In s l2.
+  Proof.
+    intros s l1 l2.
+    revert l1.
+    induction l2 as [| s' l2' IH]; intros l1 H.
+    - auto.
+    - apply IH in H.
+      simpl.
+      apply disjuction_commutative.
+      apply or_assoc.
+      destruct H as [ Hin_add | Hin_l2 ].
+      -- left. apply addService_membership. exact Hin_add.
+      -- right. exact Hin_l2.
+  Qed.
+
   Lemma addNeighbour_membership : forall (n1 n2: idMachine) (l: list idMachine),
     In n1 (addNeighbour n2 l) -> n1 = n2 \/ In n1 l.
   Proof.
