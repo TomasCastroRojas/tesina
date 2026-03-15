@@ -264,9 +264,20 @@ Require Import Attacker.Attacker.
   Qed.
 
   Lemma or_assoc : forall A B C : Prop, (A \/ (B \/ C)) <-> ((A \/ B) \/ C).
-Proof.
-  admit.
-Admitted.
+  Proof.
+    intros.
+    split; intro H.
+    - destruct H as [ H | H].
+      -- left. left. exact H.
+      -- destruct H as [ H | H ].
+         --- left. right. exact H.
+         --- right. exact H.
+    - destruct H as [ H | H].
+      -- destruct H as [ H | H ].
+         --- left. exact H.
+         --- right. left. exact H.
+      -- right. right. exact H.
+  Qed.
   
   Lemma addService_membership : forall (s s': Service) (l: list Service),
     In s (addService s' l) -> s' = s \/ In s l.
