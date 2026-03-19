@@ -16,6 +16,7 @@ Require Import Invariant.ValidAttacker.ValidAttackerI.RemoteServices.
 Require Import Invariant.ValidAttacker.ValidAttackerI.ExploitationRemoteServices.
 Require Import Invariant.ValidAttacker.ValidAttackerI.RemoteSystemDiscovery.
 Require Import Invariant.ValidAttacker.ValidAttackerI.SystemServiceDiscovery.
+Require Import Invariant.ValidAttacker.ValidAttackerI.FileDirectoryDiscoveryLocal.
 
 Theorem one_step_preserves_valid_attacker_i : forall (a a' : Attacker) (t : Technique) (n: network_map),
       one_step a t n a' -> valid_attacker_i a'.
@@ -29,7 +30,7 @@ Theorem one_step_preserves_valid_attacker_i : forall (a a' : Attacker) (t : Tech
     - admit. (* Unsecured_Credentials *)
     - admit. (* Brute_Force *)
     - admit. (* Abuse_Elevation_Control_Mechanism *)
-    - admit. (* File_Directory_Discovery_Local *)
+    - apply (one_step_file_directory_discovery_local_preserves_valid_attacker_i a a' network H0 i i0 p); auto.
     - admit. (* File_Directory_Discovery_Remote *)
     - admit. (* Network_Service_Scanning *)
     - apply (one_step_remote_system_discovery_preserves_valid_attacker_i a a' network H0 i i0); auto.

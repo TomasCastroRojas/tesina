@@ -89,6 +89,104 @@ Section MachineAuxOperations.
         | s::ss => oplusServices (addService s dest) ss
       end.
 
+    Fixpoint addSecret (m: idMachine) (p: path) (secrets: list (idMachine * path)) : list (idMachine * path) :=
+      match secrets with
+        | nil => cons (m, p) nil
+        | (m', p'):: secrets' => match idMachine_eq m m', path_eq p p' with
+                                  | left _, left _ => secrets
+                                  | _, _ => (m', p')::(addSecret m p secrets')
+                                 end
+      end.
+    
+    Fixpoint oplusSecrets (secrets: list (idMachine * path)) 
+                           (secrets_new: list (idMachine * path)) : list (idMachine * path) :=
+      match secrets_new with
+        | nil => secrets
+        | (m, p):: secrets' => oplusSecrets (addSecret m p secrets) secrets'
+      end.
+    
+    Fixpoint lookupFile (files: list File) (p: path) (u: idUser) : option File :=
+      match files with
+        | nil => None
+        | f::files' => match path_eq p (file_path f), in_dec idUser_eq u (file_user_access f) with
+                        | left _, left _ => Some f
+                        | _, _ => lookupFile files' p u
+                       end
+    end.
+
+
+    Fixpoint getFiles_collect (files filesStatic: list File) (paths : list path) (u: idUser) : list File :=
+      match files with
+        | nil => nil
+        | _::files' =>
+          match paths with
+            | nil => nil
+            | p::paths' => match lookupFile filesStatic p u with
+                            | None => getFiles_collect files' filesStatic paths' u
+                            | Some f => cons f (getFiles_collect files' filesStatic (file_subfiles f ++ paths') u)
+                           end
+          end
+      end.
+
+    Definition getFiles (files: list File) (p: path) (u: idUser) : list File := 
+      getFiles_collect files files (p::nil) u.
+    
+    Fixpoint getPaths_objectives (files : list File) (m : idMachine) : list (idMachine * path) :=
+      match files with
+        | nil => nil
+        | f :: files' => if (file_objective f) 
+                         then cons (m, (file_path f)) (getPaths_objectives files' m)
+                         else (getPaths_objectives files' m)
+      end.
+
+    Fixpoint addUser (u: idUser) (l: list idUser) : list idUser :=
+      match l with
+        | nil => cons u nil
+        | u'::us => match idUser_eq u u' with
+                      | left _ => l
+                      | right _ => u'::(addUser u us)
+                    end
+      end.
+    Fixpoint mergeUsers (source dest: list idUser) : list idUser :=
+      match source with
+        | nil => dest
+        | u::us => mergeUsers us (addUser u dest)
+      end.
+      
+    Fixpoint addPath (p: path) (l: list path) : list path :=
+      match l with
+        | nil => cons p nil
+        | p'::ps => match path_eq p p' with
+                      | left _ => l
+                      | right _ => p'::(addPath p ps)
+                    end
+      end.
+    
+    Fixpoint mergePaths (source dest: list path) : list path :=
+      match source with
+        | nil => dest
+        | p::ps => mergePaths ps (addPath p dest)
+      end.
+
+    Fixpoint addFile (f: File) (files: list File) : list File :=
+      match files with
+        | nil => cons f nil
+        | f'::files' => match path_eq (file_path f) (file_path f') with
+                          | left _ => cons (file (file_path f)
+                                                 (mergePaths (file_subfiles f) (file_subfiles f'))
+                                                 (mergeUsers (file_user_access f) (file_user_access f'))
+                                                 (file_objective f))
+                                                 files'
+                          | right _ => cons f' (addFile f files')
+                        end
+      end.
+
+    Fixpoint oplusFiles (source dest: list File) : list File :=
+      match source with
+        | nil => dest
+        | f::source' => oplusFiles source' (addFile f dest)
+      end.
+
 (*
     
     Fixpoint elem_mem_nat (n: nat) (l: list nat) : bool :=
@@ -112,22 +210,6 @@ Section MachineAuxOperations.
                       | left _ => true
                       | right _ => mem_user u us
                     end
-      end.
-    
-    Fixpoint addSecret (m: idMachine) (p: path) (secrets: list (idMachine * path)) : list (idMachine * path) :=
-      match secrets with
-        | nil => cons (m, p) nil
-        | (m', p'):: secrets' => match idMachine_eq m m', path_eq p p' with
-                                  | left _, left _ => secrets
-                                  | _, _ => (m', p')::(addSecret m p secrets')
-                                 end
-      end.
-    
-    Fixpoint addSecrets' (secrets: list (idMachine * path)) 
-                           (secrets_new: list (idMachine * path)) : list (idMachine * path) :=
-      match secrets_new with
-        | nil => secrets
-        | (m, p):: secrets' => addSecrets' (addSecret m p secrets) secrets'
       end.
     
     Fixpoint getSecrets (files: path -> option (list path * list idUser * objective))

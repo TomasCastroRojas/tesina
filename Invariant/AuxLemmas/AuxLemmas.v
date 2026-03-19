@@ -340,5 +340,172 @@ Lemma oplusServices_membership : forall (s: Service) (l1 l2: list Service),
   Qed.
   
       
+(* Membership in addSecret: el resultado contiene (m,p) o un elemento de s *)
+Lemma addSecret_membership : forall (m m0: idMachine) (p p0: path)
+                                    (s: list (idMachine * path)),
+  In (m0, p0) (addSecret m p s) -> (m0, p0) = (m, p) \/ In (m0, p0) s.
+Proof.
+  intros m m0 p p0 s.
+  induction s as [| [m' p'] s' IH].
+  - simpl. intros [H | []]. left. symmetry. exact H.
+  - simpl.
+    case (idMachine_eq m m'); intro eq_m.
+    + case (path_eq p p'); intro eq_p.
+      * (* left, left: addSecret devuelve (m',p')::s' sin cambios *)
+        intros H. right. exact H.
+      * (* left, right: (m',p') :: addSecret m p s' *)
+        simpl. intros [H | H].
+        -- right. left. exact H.
+        -- apply IH in H. destruct H as [H | H].
+           ++ left. exact H.
+           ++ right. right. exact H.
+    + (* right, _: (m',p') :: addSecret m p s' *)
+      simpl. intros [H | H].
+      * right. left. exact H.
+      * apply IH in H. destruct H as [H | H].
+        -- left. exact H.
+        -- right. right. exact H.
+Qed.
 
+(* Membership in oplusSecrets: el resultado proviene de s1 o de s2 *)
+Lemma oplusSecrets_membership : forall (m0: idMachine) (p0: path)
+                                       (s1 s2: list (idMachine * path)),
+  In (m0, p0) (oplusSecrets s1 s2) -> In (m0, p0) s1 \/ In (m0, p0) s2.
+Proof.
+  intros m0 p0 s1 s2.
+  revert s1.
+  induction s2 as [| [m p] s2' IH]; intros s1 H.
+  - left. exact H.
+  - simpl in H.
+    apply IH in H.
+    destruct H as [H | H].
+    + apply addSecret_membership in H.
+      destruct H as [H | H].
+      * right. left. rewrite <- H. reflexivity.
+      * left. exact H.
+    + right. right. exact H.
+Qed.
+
+(* Membership in getPaths_objectives: m0 = m y existe el archivo en la lista *)
+Lemma getPaths_objectives_membership : forall (m0: idMachine) (p0: path)
+                                              (files: list File) (m: idMachine),
+  In (m0, p0) (getPaths_objectives files m) ->
+  m0 = m /\ exists f, In f files /\ file_path f = p0.
+Proof.
+  intros m0 p0 files m.
+  induction files as [| f files' IH].
+  - simpl. intros [].
+  - simpl.
+    destruct (file_objective f) eqn:Hobj.
+    + simpl. intros [Heq | Hrest].
+      * injection Heq as Hm Hp.
+        split. symmetry. exact Hm.
+        exists f. split. left. reflexivity. exact Hp.
+      * apply IH in Hrest.
+        destruct Hrest as [Hm [f' [Hin Hpath]]].
+        split. exact Hm. exists f'. split. right. exact Hin. exact Hpath.
+    + intros H. apply IH in H.
+      destruct H as [Hm [f' [Hin Hpath]]].
+      split. exact Hm. exists f'. split. right. exact Hin. exact Hpath.
+Qed.
+
+(* addFile siempre incluye en el resultado un archivo con el mismo path que f.
+   Nota: en la rama `right` de addFile, la definicion actual dice
+         `addFile f files'` en lugar de `cons f' (addFile f files')`.
+   Eso no afecta este lema porque la rama `right` recursa y eventualmente
+   llega a nil donde agrega f. *)
+Lemma addFile_source_path_in : forall (f: File) (files: list File),
+  exists f', file_path f' = file_path f /\ In f' (addFile f files).
+Proof.
+  intros f files.
+  induction files as [| f0 files' IH].
+  - simpl. exists f. split. reflexivity. left. reflexivity.
+  - simpl.
+    case (path_eq (file_path f) (file_path f0)); intro eq_path.
+    + (* paths coinciden: resultado es merged :: files' *)
+      exists (file (file_path f)
+                   (mergePaths (file_subfiles f) (file_subfiles f0))
+                   (mergeUsers (file_user_access f) (file_user_access f0))
+                   (file_objective f)).
+      split. simpl. reflexivity. left. reflexivity.
+    + (* paths distintos: resultado es f0 :: addFile f files' *)
+      destruct IH as [f' [Hpath' Hin']].
+      exists f'. split. exact Hpath'. right. exact Hin'.
+Qed.
+
+(* addFile preserva todos los elementos de dest: si un path estaba registrado
+   en dest, sigue estando en addFile f_add dest *)
+Lemma addFile_dest_path_preserved : forall (p: path) (f_add: File) (dest: list File),
+  (exists g, file_path g = p /\ In g dest) ->
+  exists g', file_path g' = p /\ In g' (addFile f_add dest).
+Proof.
+  intros p f_add dest.
+  induction dest as [| f0 dest' IH].
+  - intros [g [_ []]].
+  - intros [g [Hpath_g Hin_g]].
+    simpl.
+    case (path_eq (file_path f_add) (file_path f0)); intro eq_path.
+    + (* paths coinciden: resultado es merged :: dest' *)
+      simpl in Hin_g.
+      destruct Hin_g as [Heq_g | Hin_g'].
+      * (* f0 = g: el path de g coincide con file_path f_add = file_path f0 *)
+        exists (file (file_path f_add)
+                     (mergePaths (file_subfiles f_add) (file_subfiles f0))
+                     (mergeUsers (file_user_access f_add) (file_user_access f0))
+                     (file_objective f_add)).
+        split.
+        -- simpl. rewrite eq_path. rewrite Heq_g. exact Hpath_g.
+        -- left. reflexivity.
+      * (* In g dest': g sigue en merged :: dest' via right *)
+        exists g. split.
+        -- exact Hpath_g.
+        -- right. exact Hin_g'.
+    + (* paths distintos: resultado es f0 :: addFile f_add dest' *)
+      simpl in Hin_g.
+      destruct Hin_g as [Heq_g | Hin_g'].
+      * (* f0 = g *)
+        exists f0. split.
+        -- rewrite Heq_g. exact Hpath_g.
+        -- left. reflexivity.
+      * (* In g dest': por IH *)
+        destruct (IH (ex_intro _ g (conj Hpath_g Hin_g'))) as [g' [Hpath_g' Hin_g'']].
+        exists g'. split.
+        -- exact Hpath_g'.
+        -- right. exact Hin_g''.
+Qed.
+
+(* Si un path estaba registrado en dest, sigue estando en oplusFiles source dest *)
+Lemma oplusFiles_dest_path_preserved : forall (p: path) (source dest: list File),
+  (exists f, file_path f = p /\ In f dest) ->
+  exists f', file_path f' = p /\ In f' (oplusFiles source dest).
+Proof.
+  intros p source.
+  induction source as [| f_add source' IH]; intros dest Hexists.
+  - simpl. exact Hexists.
+  - simpl.
+    apply IH.
+    apply addFile_dest_path_preserved.
+    exact Hexists.
+Qed.
+
+(* Si f_src esta en source, su path aparece en oplusFiles source dest *)
+Lemma oplusFiles_source_path_in : forall (f_src: File) (source dest: list File),
+  In f_src source ->
+  exists f', file_path f' = file_path f_src /\ In f' (oplusFiles source dest).
+Proof.
+  intros f_src source.
+  induction source as [| f source' IH]; intros dest Hin_src.
+  - simpl in Hin_src. contradiction.
+  - simpl in Hin_src. simpl.
+    destruct Hin_src as [Heq | Hin_src'].
+    + (* f_src es la cabeza: f = f_src *)
+      rewrite <- Heq.
+      destruct (addFile_source_path_in f_src dest) as [f'' [Hpath'' Hin'']].
+      rewrite Heq.
+      apply (oplusFiles_dest_path_preserved (file_path f_src) source' (addFile f_src dest)).
+      exists f''. split. exact Hpath''. exact Hin''.
+    + (* f_src esta en la cola source' *)
+      apply IH.
+      exact Hin_src'.
+Qed.
        
