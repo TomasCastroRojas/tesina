@@ -17,7 +17,7 @@ Section Predicados.
     
   (* Todo usuario con acceso a un archivo es un usuario registrado en la maquina *) 
   Definition users_access_to_files (m: Machine) : Prop :=
-    forall (u: idUser) (f: File), (In f (machine_fileSystem m) /\ In u (file_user_access f)) -> registered_users m u.
+    forall (f: File), In f (machine_fileSystem m) -> (exists (u:idUser), registered_users m u /\ In u (file_user_access f)).
               
   (* Para todo path en la maquina sus subarchivos estan registrados en la maquina *)
   (* Para todo path que es un directorio, los archivos que contiene estan registrados en la maquina *)

@@ -59,10 +59,13 @@ Section TechniquePreCondition.
                                                                        /\ account_privilege acc = Some low_star)
       | File_Directory_Discovery_Local m u p => (In (m,u) (known_machines a))
                                                 /\ (exists (mac: Machine)
-                                                           (f: File), (enviroment a) m = Some mac
+                                                           (f: File)
+                                                           (acc: Account), (enviroment a) m = Some mac
                                                                       /\ In f (machine_fileSystem mac)
                                                                       /\ file_path f = p
-                                                                      /\ In u (file_user_access f))
+                                                                      /\ In u (file_user_access f)
+                                                                      /\ In acc (machine_accounts mac)
+                                                                      /\ account_user acc = u)
       | File_Directory_Discovery_Remote m u m' u' k' p' s' => (In (m,u) (known_machines a))
                                                               /\ (exists (mac: Machine), (enviroment a) m = Some mac 
                                                                                          /\ In m' (machine_neighbours mac))
