@@ -30,7 +30,7 @@ Theorem one_step_preserves_valid_attacker_ii : forall (a a' : Attacker) (t : Tec
     - admit. (* Unsecured_Credentials *)
     - admit. (* Brute_Force *)
     - admit. (* Abuse_Elevation_Control_Mechanism *)
-    - apply (one_step_file_directory_discovery_local_preserves_valid_attacker_ii a a' network H0 i i0 p); auto. (* File_Directory_Discovery_Local *)
+    - apply (one_step_file_directory_discovery_local_preserves_valid_attacker_ii a a' network H0 i i0 p); auto.
     - admit. (* File_Directory_Discovery_Remote *)
     - admit. (* Network_Service_Scanning *)
     - apply (one_step_remote_system_discovery_preserves_valid_attacker_ii a a' network H0 i i0); auto.
