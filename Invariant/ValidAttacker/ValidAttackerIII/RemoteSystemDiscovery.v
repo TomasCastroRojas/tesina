@@ -82,7 +82,8 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iii : forall (a 
          --- rewrite H0.
              elim (valid_machine_enva m macView).
              ---- intros users_macView HI.
-                  elim_intro_clear HI subfiles_macView users_services_macView.
+                  elim_intro_clear HI subfiles_macView HI'.
+                  elim_intro_clear HI' users_services_macView unique_macView.
                   unfold valid_machine.
                   rewrite newMacView_eq.
                   split.
@@ -91,23 +92,29 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iii : forall (a 
                          simpl.
                          exact users_macView.
                   ------ split.
-                         ------- unfold subfiles_in_machine in *.
-                                 unfold registered_paths in *.
-                                 exact subfiles_macView.
                          ------- unfold users_access_to_services in *.
                                  unfold registered_service in *.
                                  simpl.
-                                 exact users_services_macView.
+                                 exact subfiles_macView.
+                         ------- unfold valid_fileSystem.
+                                 simpl.
+                                 split.
+                                 -------- exact users_services_macView.
+                                 -------- exact unique_macView.
              ---- exact env_m.
       -- elim (valid_machine_enva m' mac').
          --- intros users_mac' HI.
-            elim_intro_clear HI subfiles_mac' users_services_mac'.
+            elim_intro_clear HI subfiles_mac' HI'.
+            elim_intro_clear HI' users_services_mac' unique_mac'.
             unfold valid_machine.
             split.
             ---- exact users_mac'.
             ---- split.
                  ------ exact subfiles_mac'.
-                 ------ exact users_services_mac'.
+                 ------ unfold valid_fileSystem.
+                        split.
+                        -------- exact users_services_mac'.
+                        -------- exact unique_mac'.
          --- rewrite <- (enviroment_eq (enviroment a) (enviroment a') m' m newMacView).
              ---- exact enva'_m'.
              ---- exact eq_m'.

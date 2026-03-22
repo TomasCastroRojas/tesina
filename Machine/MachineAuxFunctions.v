@@ -115,21 +115,28 @@ Section MachineAuxOperations.
     end.
 
 
-    Fixpoint getFiles_collect (files filesStatic: list File) (paths : list path) (u: idUser) : list File :=
-      match files with
-        | nil => nil
-        | _::files' =>
-          match paths with
-            | nil => nil
-            | p::paths' => match lookupFile filesStatic p u with
-                            | None => getFiles_collect files' filesStatic paths' u
-                            | Some f => cons f (getFiles_collect files' filesStatic (file_subfiles f ++ paths') u)
-                           end
-          end
+    Definition getFiles (files: list File) (p: path) (u: idUser) : list File :=
+      match lookupFile files p u with
+      | None => nil
+      | Some root =>
+          let acc_sub_paths :=
+            filter (fun p' => match lookupFile files p' u with
+                              | Some _ => true
+                              | None   => false
+                              end)
+                   (file_subfiles root) in
+          let acc_subs :=
+            flat_map (fun p' => match lookupFile files p' u with
+                                | None   => nil
+                                | Some g => ((file (file_path g) nil
+                                                  (file_user_access g)
+                                                  (file_objective g))::nil)
+                                end)
+                     (file_subfiles root) in
+          (file (file_path root) acc_sub_paths
+                (file_user_access root) (file_objective root))
+          :: acc_subs
       end.
-
-    Definition getFiles (files: list File) (p: path) (u: idUser) : list File := 
-      getFiles_collect files files (p::nil) u.
     
     Fixpoint getPaths_objectives (files : list File) (m : idMachine) : list (idMachine * path) :=
       match files with

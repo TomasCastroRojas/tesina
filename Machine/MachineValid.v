@@ -24,6 +24,16 @@ Section Predicados.
   Definition subfiles_in_machine (m: Machine) : Prop :=
     forall (f: File), In f (machine_fileSystem m) -> (forall (p':path), In p' (file_subfiles f) -> registered_paths m p').
 
+  (* A lo sumo un archivo por path en una lista de archivos *)
+  Definition unique_paths_to_file (files: list File) : Prop :=
+    forall (f g: File), In f files -> In g files -> file_path f = file_path g -> f = g.
+
+  Definition files_without_cycles (files: list File) : Prop :=
+    forall (f: File), In f files -> (~ In (file_path f) (file_subfiles f)).
+  
+  Definition valid_fileSystem (m: Machine) : Prop :=
+    subfiles_in_machine m /\ NoDup (map file_path (machine_fileSystem m)) /\ files_without_cycles (machine_fileSystem m).
+
   Definition is_neighbour (m: Machine) (mid: idMachine) :=
     In mid (machine_neighbours m).
     
@@ -37,7 +47,7 @@ Section Predicados.
           -> exists (m':Machine), network neighbour = Some m'.
           
   Definition valid_machine (m: Machine) : Prop :=
-    users_access_to_files m /\ subfiles_in_machine m /\ users_access_to_services m.
+    users_access_to_files m /\ users_access_to_services m /\ valid_fileSystem m.
     
   Definition valid_network (network: network_map) : Prop :=
     network_topology network /\ (forall (mid: idMachine)(m: Machine), network mid = Some m -> valid_machine m).
@@ -47,4 +57,5 @@ Section Predicados.
 
   Definition valid_concrete_network (network: network_map) : Prop :=
     network_topology network /\ (forall (mid: idMachine)(m: Machine), network mid = Some m -> valid_machine m /\ accounts_complete m).
+    
 End Predicados.

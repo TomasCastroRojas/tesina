@@ -83,7 +83,16 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
       rewrite newMacView_eq.
       simpl.
       rewrite filesNewMacView_eq.
-      admit.
+      apply (oplusFiles_subset_files filesMac (machine_fileSystem macView) (machine_fileSystem mac)).
+      + destruct validNetwork as [_ Hvalid_concrete].
+        destruct (Hvalid_concrete m mac network_m) as [Hvm _].
+        unfold valid_machine in Hvm.
+        destruct Hvm as [_ [_ Hvfs_mac]].
+        unfold valid_fileSystem in Hvfs_mac.
+        destruct Hvfs_mac as [_ [Hnodup_map_mac _]].
+        apply NoDup_map_file_path_unique_paths. exact Hnodup_map_mac.
+      + rewrite filesMac_eq. apply (getFiles_subset_files_mac (machine_fileSystem mac) p u). 
+      + exact Hfiles.
     - unfold subset_neighbours in *.
       rewrite newMacView_eq.
       simpl.
@@ -104,5 +113,4 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
          --- exact eq_m0.
          --- exact env_a'.
       -- exact network_m0.
-    
-  Admitted.
+  Qed.
