@@ -20,9 +20,9 @@ Section TechniquePostCondition.
                                                                              /\ enviroment a m' = Some macView'
                                                                              /\ In acc' (machine_accounts mac')
                                                                              /\ account_user acc' = u'
-                                                                             /\ account_service acc' = s'
+                                                                             /\ account_service acc' = Some s'
                                                                              /\ known_machines a' = add_machine_user (m',u') (known_machines a)
-                                                                             /\ newAcc' = account u' s' None None
+                                                                             /\ newAcc' = account u' (Some s') None None
                                                                              /\ newAccountsView = addAccount newAcc' (machine_accounts macView')
                                                                              /\ newMacView' = machine (machine_services macView')
                                                                                                       newAccountsView

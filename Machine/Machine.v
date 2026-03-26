@@ -28,7 +28,7 @@ Section Machine.
   Record Account : Set :=
       account {
         account_user      : idUser;
-        account_service   : idService; 
+        account_service   : option idService;
         account_key       : option (option key); 
         account_privilege : option privilege;
       }.

@@ -39,7 +39,7 @@ Section Predicados.
     
   (* Para todo servicio asociado a una cuenta, es un servicio registrado en la maquina *)
   Definition users_access_to_services (m: Machine) : Prop :=
-    forall (a: Account), In a (machine_accounts m) -> registered_service m (account_service a).
+    forall (a: Account), In a (machine_accounts m) -> (account_service a = None \/ (exists (s: idService), account_service a = Some s /\ registered_service m s)).
   
   (* Para toda maquina que pertenece a la red, todos sus vecinos tambien pertenecen a la red *)
   Definition network_topology (network: network_map) : Prop :=
@@ -53,7 +53,7 @@ Section Predicados.
     network_topology network /\ (forall (mid: idMachine)(m: Machine), network mid = Some m -> valid_machine m).
 
   Definition accounts_complete (m: Machine) : Prop :=
-    forall (acc: Account), In acc (machine_accounts m) -> (account_key acc <> None /\ account_privilege acc <> None).
+    forall (acc: Account), In acc (machine_accounts m) -> (account_service acc <> None /\ account_key acc <> None /\ account_privilege acc <> None).
 
   Definition valid_concrete_network (network: network_map) : Prop :=
     network_topology network /\ (forall (mid: idMachine)(m: Machine), network mid = Some m -> valid_machine m /\ accounts_complete m).

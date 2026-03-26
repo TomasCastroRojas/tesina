@@ -16,7 +16,7 @@ Section TechniquePreCondition.
                                                      (mac': Machine), (enviroment a) m' = Some mac'
                                                                       /\ In acc (machine_accounts mac')
                                                                       /\ account_user acc = u'
-                                                                      /\ account_service acc = s
+                                                                      /\ account_service acc = Some s
                                                                       /\ account_key acc = Some (Some k'))
       | Exploitation_Remote_Services m u m' s' e => (In (m,u) (known_machines a))
                                                     /\ (exists (mac: Machine), (enviroment a) m = Some mac 
@@ -33,7 +33,7 @@ Section TechniquePreCondition.
                                                   (l: privilege), (enviroment a) m = Some mac
                                                                   /\ In acc (machine_accounts mac)
                                                                   /\ account_user acc = u
-                                                                  /\ account_service acc = s
+                                                                  /\ account_service acc = Some s
                                                                   /\ account_privilege acc = Some l
                                                                   /\ account_key acc = Some (Some k))
       | Brute_Force m u m' u' s' => (In (m,u) (known_machines a))
@@ -44,7 +44,7 @@ Section TechniquePreCondition.
                                                (l: privilege), (enviroment a) m' = Some mac'
                                                                /\ In acc (machine_accounts mac')
                                                                /\ account_user acc = u
-                                                               /\ account_service acc = s'
+                                                               /\ account_service acc = Some s'
                                                                /\ account_key acc = None
                                                                /\ account_privilege acc = Some l)
  
@@ -54,7 +54,7 @@ Section TechniquePreCondition.
                                                             (k : key), (enviroment a) m = Some mac
                                                                        /\ In acc (machine_accounts mac)
                                                                        /\ account_user acc = u
-                                                                       /\ account_service acc = OS
+                                                                       /\ account_service acc = Some OS
                                                                        /\ account_key acc = Some (Some k)
                                                                        /\ account_privilege acc = Some low_star)
       | File_Directory_Discovery_Local m u p => (In (m,u) (known_machines a))
@@ -77,7 +77,7 @@ Section TechniquePreCondition.
                                                                                           /\ service_value serv' = s'
                                                                                           /\ In acc (machine_accounts mac')
                                                                                           /\ account_user acc = u'
-                                                                                          /\ account_service acc = s'
+                                                                                          /\ account_service acc = Some s'
                                                                                           /\ account_key acc <> None
                                                                                           /\ In f (machine_fileSystem mac')
                                                                                           /\ file_path f = p'
@@ -96,7 +96,7 @@ Section TechniquePreCondition.
                                                                     /\ service_value serv = s
                                                                     /\ In acc (machine_accounts mac)
                                                                     /\ account_user acc = u
-                                                                    /\ account_service acc = s
+                                                                    /\ account_service acc = Some s
                                                                     /\ account_key acc = Some (Some k)
                                                                     /\ account_privilege acc = Some l)
       | Account_Discovery_Remote m u m' u' k' s' => (In (m,u) (known_machines a))
@@ -110,7 +110,7 @@ Section TechniquePreCondition.
                                                                                /\ service_value serv' = s'
                                                                                /\ In acc' (machine_accounts mac')
                                                                                /\ account_user acc' = u'
-                                                                               /\ account_service acc' = s'
+                                                                               /\ account_service acc' = Some s'
                                                                                /\ account_key acc' <> None
                                                                                /\ account_privilege acc' = Some l)
       | System_Service_Discovery m u => In (m,u) (known_machines a)

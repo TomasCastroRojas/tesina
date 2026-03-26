@@ -95,13 +95,15 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_iii : forall (a
                                  rewrite servicesNewView_eq.
                                  intros acc Hinacc.
                                  elim (subfiles_macView acc).
-                                 -------- intros service [Heq_service H_in_service].
-                                          exists service.
-                                          split.
-                                          --------- exact Heq_service.
-                                          --------- rewrite servicesView_eq.
-                                                    apply oplusServices_preserves_membership.
-                                                    exact H_in_service.
+                                 -------- intro Hnone. left. exact Hnone.
+                                 -------- intros [s [Heq_s [service [Heq_service H_in_service]]]].
+                                          right. exists s. split.
+                                          --------- exact Heq_s.
+                                          --------- exists service. split.
+                                                    ---------- exact Heq_service.
+                                                    ---------- rewrite servicesView_eq.
+                                                               apply oplusServices_preserves_membership.
+                                                               exact H_in_service.
                                  -------- exact Hinacc.
                          ------- unfold valid_fileSystem.
                                  simpl.

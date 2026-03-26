@@ -22,35 +22,34 @@ Section MachineAuxOperations.
                   | right _ => env id
                 end.
     
-    Fixpoint get_accounts_linked_service_with_key (s: idService) (l: list Account) : list Account :=
-      match l with
-        | nil => nil
-        | acc::l' => match idService_eq s (account_service acc) with
-                       | left _ => account (account_user acc) s (account_key acc) (account_privilege acc) :: get_accounts_linked_service_with_key s l'
-                       | right _ => get_accounts_linked_service_with_key s l'
-                     end
-      end.
-      
-    Fixpoint get_accounts_linked_service_without_key (s: idService) (l: list Account) : list Account :=
-      match l with
-        | nil => nil
-        | acc::l' => match idService_eq s (account_service acc) with
-                       | left _ => account (account_user acc) s None (account_privilege acc) :: get_accounts_linked_service_without_key s l'
-                       | right _ => get_accounts_linked_service_without_key s l'
-                     end
-      end.
-    
     Fixpoint addAccount (acc: Account) (accounts: list Account) : list Account :=
       match accounts with
         | nil => cons acc nil
-        | acc':: accs => match idUser_eq (account_user acc) (account_user acc'), idService_eq (account_service acc) (account_service acc') with
-                          | left _, left _ => cons (account (account_user acc) 
-                                                            (account_service acc)
-                                                            (account_key acc)
-                                                            (account_privilege acc))
-                                                   accs
-                          | _, _ => cons acc' (addAccount acc accs)
-                         end
+        | acc':: accs =>
+          match idUser_eq (account_user acc) (account_user acc') with
+            | left _ =>
+              match account_service acc' with
+                | None => cons (account (account_user acc)
+                                        (account_service acc)
+                                        (account_key acc)
+                                        (account_privilege acc))
+                               accs
+                | Some s' =>
+                  match account_service acc with
+                    | Some s =>
+                      match idService_eq s s' with
+                        | left _ => cons (account (account_user acc)
+                                                   (account_service acc)
+                                                   (account_key acc)
+                                                   (account_privilege acc))
+                                          accs
+                        | right _ => cons acc' (addAccount acc accs)
+                      end
+                    | None => cons acc' (addAccount acc accs)
+                  end
+              end
+            | right _ => cons acc' (addAccount acc accs)
+          end
       end.
     
     Fixpoint oplusAccounts (source dest: list Account) : list Account :=

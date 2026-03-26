@@ -57,67 +57,65 @@ Require Import Attacker.Attacker.
     induction l; simpl; split.
     - auto.
     - auto.
-    - destruct a as [u s k p].
-      destruct a0 as [u0 s0 k0 p0].
-      simpl.
-      case (idUser_eq u u0); case (idService_eq s s0); intros; auto.
+    - auto.
     - intro.
       destruct a as [u s k p].
       destruct a0 as [u0 s0 k0 p0].
       simpl.
       case (idUser_eq u u0); intro.
-      -- case (idService_eq s s0); intros.
-         --- simpl.
-             left.
-             reflexivity.
-         --- simpl.
-             right.
-             apply IHl. auto.
-      -- simpl.
-         right.
-         apply IHl. auto.
+      + destruct s0 as [s0' |].
+        * destruct s as [s_val |].
+          { case (idService_eq s_val s0'); intro.
+            - simpl. left. reflexivity.
+            - simpl. right. apply IHl. auto.
+          }
+          { simpl. right. apply IHl. auto. }
+        * simpl. left. reflexivity.
+      + simpl. right. apply IHl. auto.
   Qed.
 
   Lemma member_addAccount_simpl : forall (a a': Account) (l: list Account),
       In a (addAccount a' l) -> a' = a \/ In a l.
   Proof.
     intros a a'.
-  induction l as [| acc' accs IH].
+    induction l as [| acc' accs IH].
 
-  - simpl.
-    intros [H | []].
-    left.  exact H.
+    - simpl.
+      intros [H | []].
+      left. exact H.
 
-  - destruct a'   as [u' s' k' p'].
-    destruct acc' as [u0 s0 k0 p0].
-    simpl.
-    destruct (idUser_eq u' u0) as [Heq_u | Hneq_u];
-    destruct (idService_eq s' s0) as [Heq_s | Hneq_s]; simpl.
+    - destruct a' as [u' s' k' p'].
+      destruct acc' as [u0 s0 k0 p0].
+      simpl.
+      destruct (idUser_eq u' u0) as [Heq_u | Hneq_u].
 
-    + intros [H | H].
-      * left. exact H.
-      * right. right. exact H. 
+      + destruct s0 as [s0' |].
+        * destruct s' as [s_val |].
+          { destruct (idService_eq s_val s0') as [Heq_s | Hneq_s]; simpl.
+            - intros [H | H].
+              ++ left. exact H.
+              ++ right. right. exact H.
+            - intros [H | H].
+              ++ right. left. exact H.
+              ++ apply IH in H. destruct H as [H | H].
+                 ** left. exact H.
+                 ** right. right. exact H.
+          }
+          { simpl. intros [H | H].
+            - right. left. exact H.
+            - apply IH in H. destruct H as [H | H].
+              ++ left. exact H.
+              ++ right. right. exact H.
+          }
+        * simpl. intros [H | H].
+          { left. exact H. }
+          { right. right. exact H. }
 
-    + intros [H | H].
-      * right. left. exact H.
-      * apply IH in H.
-        destruct H as [H | H].
-        -- left. exact H.
-        -- right. right. exact H.
-
-    + intros [H | H].
-      * right. left. exact H.
-      * apply IH in H.
-        destruct H as [H | H].
-        -- left. exact H.
-        -- right. right. exact H.
-
-    + intros [H | H].
-      * right. left. exact H.
-      * apply IH in H.
-        destruct H as [H | H].
-        -- left. exact H.
-        -- right. right. exact H.
+      + simpl. intros [H | H].
+        * right. left. exact H.
+        * apply IH in H. destruct H as [H | H].
+          { left. exact H. }
+          { right. right. exact H. }
   Qed.
 
   Lemma addAccount_preserves_membership_when_neq : forall (a a': Account) (l: list Account),
@@ -128,17 +126,20 @@ Require Import Attacker.Attacker.
     - intros. simpl. auto.
     - intros Hneq Hin.
       simpl in *.
-      destruct (idUser_eq (account_user a') (account_user acc)) as [ Heq_u | Hneq_u];
-      destruct (idService_eq (account_service a') (account_service acc)) as [ Heq_s | Hneq_s];
-      simpl; destruct Hin as [ Heq | Hin'].
-      -- exfalso. apply Hneq. rewrite <- Heq. symmetry. exact Heq_u.
-      -- right. exact Hin'.
-      -- left. exact Heq.
-      -- right. apply IH; assumption.
-      -- left. exact Heq.
-      -- right. apply IH; assumption.
-      -- left. exact Heq.
-      -- right. apply IH; assumption.
+      destruct (idUser_eq (account_user a') (account_user acc)) as [Heq_u | Hneq_u].
+      + destruct Hin as [Heq | Hin'].
+        * exfalso. apply Hneq. rewrite <- Heq. symmetry. exact Heq_u.
+        * destruct (account_service acc) as [s0' |].
+          { destruct (account_service a') as [s_val |].
+            - destruct (idService_eq s_val s0') as [Heq_s | Hneq_s]; simpl.
+              ++ right. exact Hin'.
+              ++ right. apply IH; assumption.
+            - simpl. right. apply IH; assumption.
+          }
+          { simpl. right. exact Hin'. }
+      + simpl. destruct Hin as [Heq | Hin'].
+        * left. exact Heq.
+        * right. apply IH; assumption.
   Qed.
 
   Lemma enviroment_eq : forall (env env': network_map) (m m': idMachine) (mac: Machine),

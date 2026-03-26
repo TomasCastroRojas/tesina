@@ -11,7 +11,7 @@ Section MachineView.
 
   Definition account_view (acc1 acc2: Account) : Prop :=
     account_user acc1 = account_user acc2
-    /\ account_service acc1 = account_service acc2
+    /\ (account_service acc1 = None \/ account_service acc1 = account_service acc2)
     /\ (account_key acc1 = None \/ account_key acc1 = account_key acc2)
     /\ (account_privilege acc1 = None \/ account_privilege acc1 = account_privilege acc2).
 
