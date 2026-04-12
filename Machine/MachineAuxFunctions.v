@@ -193,123 +193,16 @@ Section MachineAuxOperations.
         | f::source' => oplusFiles source' (addFile f dest)
       end.
 
-(*
-    
-    Fixpoint elem_mem_nat (n: nat) (l: list nat) : bool :=
+    Fixpoint get_accounts_linked_service_with_key (u: idUser) (s: idService) (l: list Account) : list Account :=
       match l with
-        | nil => false
-        | x::xs => if Nat.eqb n x then true else elem_mem_nat n xs
-      end.
-    
-    Definition scanServices (services: idService -> option Service) (ports: list nat) : idService -> option Service :=
-      fun s => match services s with
-                | None => None
-                | Some serv => if logical_identifier_eq (logical_ident serv) service_port && (elem_mem_nat (value_s serv) ports) 
-                               then Some serv 
-                               else None
-               end.
-    
-    Fixpoint mem_user (u: idUser) (users: list idUser) : bool :=
-      match users with
-        | nil => false
-        | u'::us => match idUser_eq u u' with
-                      | left _ => true
-                      | right _ => mem_user u us
-                    end
-      end.
-    
-    Fixpoint getSecrets (files: path -> option (list path * list idUser * objective))
-                        (subfiles: list path) (m: idMachine) (u: idUser): list (idMachine * path):=
-      match subfiles with
         | nil => nil
-        | p'::ps => match files p' with
-                      | None => getSecrets files ps m u
-                      | Some (_, _, false) => getSecrets files ps m u
-                      | Some (_, users, true) => if mem_user u users then cons (m, p') (getSecrets files ps m u) else getSecrets files ps m u
-                    end
+        | a::l' => match (account_service a) with
+                    | None => get_accounts_linked_service_with_key u s l'
+                    | Some s' => match (idUser_eq u (account_user a)), (idService_eq s s') with
+                                  | left _, left _ => cons a (get_accounts_linked_service_with_key u s l')
+                                  | _, _ => get_accounts_linked_service_with_key u s l'
+                                  end
+                  end
       end.
-    
-    Definition addSecrets (secrets: list (idMachine * path)) 
-                          (files: path -> option (list path * list idUser * objective)) 
-                          (p: path) (m: idMachine) (u: idUser): list (idMachine * path):=
-      match files p with
-        | None => secrets
-        | Some (nil, _, _) => secrets
-        | Some (subfiles, _, _) => addSecrets' secrets (getSecrets files subfiles m u)
-      end.
-      
-    Fixpoint getPaths' (files: path -> option (list path * list idUser * objective))
-                       (subfiles: list path) (u: idUser): list path :=
-      match subfiles with
-        | nil => nil
-        | f::fs => match files f with
-                    | None => getPaths' files fs u
-                    | Some (_, users, _) => if mem_user u users then cons f (getPaths' files fs u) else getPaths' files fs u
-                   end
-      end.
-    
-    Definition getPaths (files: path -> option (list path * list idUser * objective))
-                        (p: path) (u: idUser) : list path :=
-      match files p with
-        | None => nil
-        | Some (nil, _, _) => nil
-        | Some (subfiles, _, _) => getPaths' files subfiles u
-      end.
-    
-    Fixpoint mem_path (p: path) (paths: list path) : bool :=
-      match paths with
-        | nil => false
-        | p'::ps => match path_eq p p' with
-                      | left _ => true
-                      | right _ => mem_path p ps
-                    end
-      end.
-    
-    Fixpoint addUser (u: idUser) (l: list idUser) : list idUser :=
-      match l with
-        | nil => cons u nil
-        | u'::us => match idUser_eq u u' with
-                      | left _ => l
-                      | right _ => u'::(addUser u us)
-                    end
-      end.
-    
-    Fixpoint mergeUsers (source dest: list idUser) : list idUser :=
-      match source with
-        | nil => dest
-        | u::us => mergeUsers us (addUser u dest)
-      end.
-      
-    Fixpoint addPath (p: path) (l: list path) : list path :=
-      match l with
-        | nil => cons p nil
-        | p'::ps => match path_eq p p' with
-                      | left _ => l
-                      | right _ => p'::(addPath p ps)
-                    end
-      end.
-    
-    Fixpoint mergePaths (source dest: list path) : list path :=
-      match source with
-        | nil => dest
-        | p::ps => mergePaths ps (addPath p dest)
-      end.
-    
-    Definition pathInfo (filesView: path -> option (list path * list idUser * objective))
-                        (files: path -> option (list path * list idUser * objective))
-                        (p: path) : option (list path * list idUser * objective) :=
-      match filesView p, files p with
-        | None, None => None
-        | None, Some info => Some info
-        | Some (ps, us, o), Some (ps', us', o') => Some (mergePaths ps' ps, mergeUsers us' us, o')
-        | Some info, None => Some info (* Este caso nunca deberia ocurrir. No es posible que la view tenga mas informacion que la maquina real *)
-      end.
-    
-    Definition updatePaths (filesView: path -> option (list path * list idUser * objective))
-                           (files: path -> option (list path * list idUser * objective))
-                           (new_paths: list path) : path -> option (list path * list idUser * objective) :=
-      fun p' => if mem_path p' new_paths
-                then pathInfo filesView files p'
-                else filesView p'.
-*)              
+                    
 End MachineAuxOperations.

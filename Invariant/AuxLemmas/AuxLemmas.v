@@ -1029,3 +1029,84 @@ Proof.
   - simpl. exact H.
   - simpl. apply IH. apply addFile_preserves_NoDup_map_file_path. exact H.
 Qed.
+
+(* addAccount preserva la existencia de un usuario registrado en la lista de cuentas *)
+Lemma addAccount_preserves_registered_user : forall (acc: Account) (u: idUser) (accs: list Account),
+  (exists a, account_user a = u /\ In a accs) -> (exists a, account_user a = u /\ In a (addAccount acc accs)).
+Proof.
+  intros acc u accs [a [Huser Hin]].
+  destruct (idUser_eq (account_user acc) u) as [Heq_u | Hneq_u].
+  - exists acc. split.
+    + exact Heq_u.
+    + apply member_addAccount. exact I.
+  - exists a. split.
+    + exact Huser.
+    + apply addAccount_preserves_membership_when_neq.
+      * intro Hcontra. apply Hneq_u. rewrite <- Hcontra. exact Huser.
+      * exact Hin.
+Qed.
+
+(* oplusAccounts preserva la existencia de un usuario registrado en la lista destino *)
+Lemma oplusAccounts_preserves_registered_user : forall (source dest: list Account) (u: idUser),
+  (exists a, account_user a = u /\ In a dest) -> (exists a, account_user a = u /\ In a (oplusAccounts source dest)).
+Proof.
+  intros source.
+  induction source as [| acc source' IH].
+  - intros dest u H. simpl. exact H.
+  - intros dest u H. simpl. apply IH. apply addAccount_preserves_registered_user. exact H.
+Qed.
+
+(* Todo elemento en oplusAccounts proviene de source o de dest *)
+Lemma member_oplusAccounts_simpl : forall (a: Account) (source dest: list Account),
+    In a (oplusAccounts source dest) -> In a source \/ In a dest.
+Proof.
+  intros a source.
+  induction source as [| acc source' IH].
+  - intros dest H. simpl in H. right. exact H.
+  - intros dest H. simpl in H.
+    apply IH in H. destruct H as [H | H].
+    + left. right. exact H.
+    + apply member_addAccount_simpl in H. destruct H as [H | H].
+      * left. left. exact H.
+      * right. exact H.
+Qed.
+
+(* Toda cuenta obtenida por get_accounts_linked_service_with_key pertenece a la lista original *)
+Lemma get_accounts_linked_service_with_key_in : forall (u: idUser) (s: idService) (l: list Account) (a: Account),
+    In a (get_accounts_linked_service_with_key u s l) -> In a l.
+Proof.
+  intros u s.
+  induction l as [| acc l' IH].
+  - intros a H. simpl in H. contradiction.
+  - intros a H. simpl in H.
+    destruct (account_service acc) eqn:Hserv.
+    + destruct (idUser_eq u (account_user acc)) as [Heq_u | Hneq_u];
+      destruct (idService_eq s i) as [Heq_s | Hneq_s].
+      * simpl in H. destruct H as [H | H].
+        { left. exact H. }
+        { right. apply IH. exact H. }
+      * right. apply IH. exact H.
+      * right. apply IH. exact H.
+      * right. apply IH. exact H.
+    + right. apply IH. exact H.
+Qed.
+
+(* Toda cuenta obtenida por get_accounts_linked_service_with_key tiene servicio Some s *)
+Lemma get_accounts_linked_service_with_key_service : forall (u: idUser) (s: idService) (l: list Account) (a: Account),
+    In a (get_accounts_linked_service_with_key u s l) -> account_service a = Some s.
+Proof.
+  intros u s.
+  induction l as [| acc l' IH].
+  - intros a H. simpl in H. contradiction.
+  - intros a H. simpl in H.
+    destruct (account_service acc) eqn:Hserv.
+    + destruct (idUser_eq u (account_user acc)) as [Heq_u | Hneq_u];
+      destruct (idService_eq s i) as [Heq_s | Hneq_s].
+      * simpl in H. destruct H as [H | H].
+        { rewrite <- H. rewrite Heq_s. exact Hserv. }
+        { apply IH. exact H. }
+      * apply IH. exact H.
+      * apply IH. exact H.
+      * apply IH. exact H.
+    + apply IH. exact H.
+Qed.

@@ -74,23 +74,28 @@ Section TechniquePostCondition.
                                                                                                                             (machine_neighbours macView)
                                                                                                     /\ enviroment a' = modify_machine m
                                                                                                                                       newMacView
-                                                                                                                                      (enviroment a))
-(*                                                                                    
+                                                                                                                                      (enviroment a))                                                                               
       | Unsecured_Credentials m u s => known_machines a' = known_machines a
                                        /\ secrets a' = secrets a
-                                       /\ (exists (macView: Machine)
-                                                  (mac: Machine)
-                                                  (accs: list Account)
-                                                  (accsView: list Account), (enviroment a) m = Some macView
-                                                                            /\ network m = Some mac
-                                                                            /\ (machine_accounts macView) u = Some accsView
-                                                                            /\ (machine_accounts mac) u = Some accs
-                                                                            /\ enviroment a' = modify_machine m 
-                                                                                                              (machine (machine_services macView)
-                                                                                                                       (modify_accounts u (oplusAccounts (get_accounts_linked_service_with_key s accs) accsView) (machine_accounts macView))
-                                                                                                                       (machine_fileSystem macView)
-                                                                                                                       (machine_neighbours macView))
-                                                                                                              (enviroment a))
+                                       /\ (exists (mac macView newMacView: Machine)
+                                                  (accs accsView accsLinkedToUser accsNewView: list Account)
+                                                  (accView: Account), (enviroment a) m = Some macView
+                                                                                                                /\ network m = Some mac
+                                                                                                                /\ (machine_accounts macView) = accsView
+                                                                                                                /\ In accView accsView
+                                                                                                                /\ account_user accView = u
+                                                                                                                /\ account_service accView = Some s
+                                                                                                                /\ machine_accounts mac = accs
+                                                                                                                /\ accsLinkedToUser = get_accounts_linked_service_with_key u s accs
+                                                                                                                /\ accsNewView = oplusAccounts accsLinkedToUser accsView
+                                                                                                                /\ newMacView = (machine (machine_services macView)
+                                                                                                                                        accsNewView
+                                                                                                                                        (machine_fileSystem macView)
+                                                                                                                                        (machine_neighbours macView))
+                                                                                                                /\ enviroment a' = modify_machine m 
+                                                                                                                                                newMacView
+                                                                                                                                                (enviroment a))
+(*
       | Brute_Force m u m' u' s' => known_machines a' = known_machines a
                                     /\ secrets a' = secrets a
                                     /\ (exists (macView':Machine)
