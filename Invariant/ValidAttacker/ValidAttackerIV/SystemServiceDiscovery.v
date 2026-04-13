@@ -9,7 +9,8 @@ Require Import Technique.Technique.
 Require Import Technique.TechniquePreCondition.
 Require Import Technique.TechniquePostCondition.
 
-Require Import Invariant.AuxLemmas.AuxLemmas.
+Require Import Invariant.AuxLemmas.AuxLemmasEnviroment.
+Require Import Invariant.AuxLemmas.AuxLemmasService.
 Require Import Invariant.AuxTactics.
 
 Lemma one_step_system_service_discovery_preserves_valid_attacker_iv : forall (a a' : Attacker) (n: network_map) (aValid: valid_attacker a n) (m : idMachine) (u : idUser),

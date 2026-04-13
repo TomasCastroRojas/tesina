@@ -8,7 +8,6 @@ Require Import Technique.Technique.
 Require Import Technique.TechniquePreCondition.
 Require Import Technique.TechniquePostCondition.
 
-Require Import Invariant.AuxLemmas.AuxLemmas.
 Require Import Invariant.AuxTactics.
 
 Lemma one_step_remote_services_preserves_valid_attacker_iii : forall (a a' : Attacker) (n: network_map) (aValid: valid_attacker a n) (m m': idMachine) (u u': idUser) (k': key) (s': idService),

@@ -9,7 +9,8 @@ Require Import Technique.Technique.
 Require Import Technique.TechniquePreCondition.
 Require Import Technique.TechniquePostCondition.
 
-Require Import Invariant.AuxLemmas.AuxLemmas.
+Require Import Invariant.AuxLemmas.AuxLemmasEnviroment.
+Require Import Invariant.AuxLemmas.AuxLemmasFile.
 Require Import Invariant.AuxTactics.
 
 Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
