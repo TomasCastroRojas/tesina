@@ -22,7 +22,8 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_i : foral
     intros validAttackerI validAttackerII_III.
     unfold Pre in pre; destruct post.
 
-    elim_intro_clear H0 mac H0'.
+    elim_intro_clear H0 Hmastered H0_0.
+    elim_intro_clear H0_0 mac H0'.
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' filesMac H0''''.

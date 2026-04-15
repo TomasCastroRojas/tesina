@@ -39,7 +39,8 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iii :
     elim_intro_clear pre3 Hin_accPre Heq_accPre.
 
     (* Descomposicion de los 6 existenciales del Post *)
-    elim_intro_clear H0 mac H0'.
+    elim_intro_clear H0 Hmastered H0a.
+    elim_intro_clear H0a mac H0'.
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' filesMac H0''''.
@@ -97,8 +98,8 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iii :
          --- rewrite H0.
              elim (valid_machine_enva m macView).
              ---- intros users_macView HI.
-                  elim_intro_clear HI subfiles_macView HI'.
-                  elim_intro_clear HI' users_services_macView unique_macView.
+                  elim_intro_clear HI users_services_macView HI'.
+                  elim_intro_clear HI' exploits_macView fileSystem_macView.
                   unfold valid_machine.
                   rewrite newMacView_eq.
                   split.
@@ -133,39 +134,45 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iii :
                          ------- unfold users_access_to_services in *.
                                  unfold registered_service in *.
                                  simpl.
-                                 exact subfiles_macView.
-                         ------- unfold valid_fileSystem.
-                                 simpl.
-                                 rewrite filesNewMacView_eq.
-                                 split.
-                                 -------- unfold subfiles_in_machine in *.
-                                          unfold registered_paths in *.
+                                 exact users_services_macView.
+                         ------- split.
+                                 -------- unfold exploits_services in *.
+                                          unfold registered_service in *.
                                           simpl.
-                                          apply (oplusFiles_subfiles_closed filesMac
-                                                     (machine_fileSystem macView)).
-                                          * intros f_src Hin_src p' Hp'.
-                                            rewrite filesMac_eq in *.
-                                            apply (getFiles_subfiles_closed
-                                                     (machine_fileSystem mac) p u f_src p').
-                                            --------- exact Hin_src.
-                                            --------- exact Hp'.
-                                          * intros f_dst Hin_dst p' Hp'.
-                                            exact (users_services_macView f_dst Hin_dst p' Hp').
-                                 -------- destruct unique_macView as [nodup_map_macView fwc_macView].
-                                          destruct validNetwork as [_ Hvalid_concrete].
-                                          destruct (Hvalid_concrete m mac network_m) as [Hvm _].
-                                          unfold valid_machine in Hvm.
-                                          destruct Hvm as [_ [_ Hvfs_mac]].
-                                          unfold valid_fileSystem in Hvfs_mac.
-                                          destruct Hvfs_mac as [_ [_ Hfwc_mac]].
+                                          exact exploits_macView.
+                                 -------- unfold valid_fileSystem in *.
+                                          elim_intro_clear fileSystem_macView subfiles_macView fileSystem'_macView.
+                                          simpl.
+                                          rewrite filesNewMacView_eq.
                                           split.
-                                          --------- apply oplusFiles_preserves_NoDup_map_file_path.
-                                                    exact nodup_map_macView.
-                                          --------- apply oplusFiles_preserves_files_without_cycles.
-                                                    ---------- rewrite filesMac_eq.
-                                                               apply getFiles_preserves_files_without_cycles.
-                                                               exact Hfwc_mac.
-                                                    ---------- exact fwc_macView.
+                                          --------- unfold subfiles_in_machine in *.
+                                                    unfold registered_paths in *.
+                                                    simpl.
+                                                    apply (oplusFiles_subfiles_closed filesMac
+                                                              (machine_fileSystem macView)).
+                                                    * intros f_src Hin_src p' Hp'.
+                                                      rewrite filesMac_eq in *.
+                                                      apply (getFiles_subfiles_closed
+                                                              (machine_fileSystem mac) p u f_src p').
+                                                      ---------- exact Hin_src.
+                                                      ---------- exact Hp'.
+                                                    * intros f_dst Hin_dst p' Hp'.
+                                                      exact (subfiles_macView f_dst Hin_dst p' Hp').
+                                          --------- destruct fileSystem'_macView as [nodup_map_macView fwc_macView].
+                                                    destruct validNetwork as [_ Hvalid_concrete].
+                                                    destruct (Hvalid_concrete m mac network_m) as [Hvm _].
+                                                    unfold valid_machine in Hvm.
+                                                    destruct Hvm as [_ [_ Hvfs_mac]].
+                                                    unfold valid_fileSystem in Hvfs_mac.
+                                                    destruct Hvfs_mac as [_ [_ [_ Hfwc_mac]]].
+                                                    split.
+                                                    ---------- apply oplusFiles_preserves_NoDup_map_file_path.
+                                                              exact nodup_map_macView.
+                                                    ---------- apply oplusFiles_preserves_files_without_cycles.
+                                                              ----------- rewrite filesMac_eq.
+                                                                        apply getFiles_preserves_files_without_cycles.
+                                                                        exact Hfwc_mac.
+                                                              ----------- exact fwc_macView.
                                                     
              ---- exact env_m.
       -- elim (valid_machine_enva m' mac').

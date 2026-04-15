@@ -24,7 +24,8 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_iii : forall (a 
     clear validAttackerI validAttackerII validAttacker'''.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' macView H0''.
+    elim_intro_clear H0' Hmastered H0'a.
+    elim_intro_clear H0'a macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' mac H0''''.
     elim_intro_clear H0'''' newNeighbours H0'''''.

@@ -29,8 +29,9 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
     clear validAttackerI validAttackerII validAttackerIII.
     unfold Pre in pre; destruct post.
 
+    elim_intro_clear H0 Hmastered H0_post.
     (* Descomposicion de los 6 existenciales del Post *)
-    elim_intro_clear H0 mac H0'.
+    elim_intro_clear H0_post mac H0'.
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' filesMac H0''''.
@@ -54,8 +55,9 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
     case (idMachine_eq m0 m); intros eq_m0.
     elim (validAttackerIV m0 macView mac).
     intros Hserv. intro Hserv'.
-    destruct Hserv' as [Haccs Hserv'']. 
-    destruct Hserv'' as [Hfiles Hneighs].
+    destruct Hserv' as [Haccs Hserv''].
+    destruct Hserv'' as [Hfiles Hserv'''].
+    destruct Hserv''' as [Hneighs Hexploits].
     assert (Heq_mac1: mac1 = newMacView).
     {
       apply (enviroment_simpl (enviroment a) (enviroment a') m0 m mac1 newMacView).
@@ -71,7 +73,7 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
     }
     rewrite Heq_mac1.
     rewrite Heq_mac2.
-    split; [|split]; try split.
+    split; [|split; [|split]]; try split.
     - unfold subset_services in *.
       rewrite newMacView_eq.
       simpl.
@@ -90,25 +92,31 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_iv :
         unfold valid_machine in Hvm.
         destruct Hvm as [_ [_ Hvfs_mac]].
         unfold valid_fileSystem in Hvfs_mac.
-        destruct Hvfs_mac as [_ [Hnodup_map_mac _]].
+        destruct Hvfs_mac as [_ [_ [Hnodup_map_mac _]]].
         apply NoDup_map_file_path_unique_paths. exact Hnodup_map_mac.
-      + rewrite filesMac_eq. apply (getFiles_subset_files_mac (machine_fileSystem mac) p u). 
+      + rewrite filesMac_eq. apply (getFiles_subset_files_mac (machine_fileSystem mac) p u).
       + exact Hfiles.
     - unfold subset_neighbours in *.
       rewrite newMacView_eq.
       simpl.
       exact Hneighs.
+    - unfold subset_exploits in *.
+      rewrite newMacView_eq.
+      simpl.
+      exact Hexploits.
     - rewrite <- eq_m0 in env_m. exact env_m.
     - rewrite <- eq_m0 in network_m. exact network_m.
     - elim (validAttackerIV m0 mac1 mac2).
       intros Hserv. intro Hserv'.
       destruct Hserv' as [Haccs Hserv''].
-      destruct Hserv'' as [Hfiles Hneighs].
-      split; [|split]; try split.
+      destruct Hserv'' as [Hfiles Hserv'''].
+      destruct Hserv''' as [Hneighs Hexploits].
+      split; [|split; [|split]]; try split.
       -- exact Hserv.
       -- exact Haccs.
       -- exact Hfiles.
       -- exact Hneighs.
+      -- exact Hexploits.
       -- rewrite <- (enviroment_eq (enviroment a) (enviroment a') m0 m newMacView).
          --- exact env_a'_m0.
          --- exact eq_m0.

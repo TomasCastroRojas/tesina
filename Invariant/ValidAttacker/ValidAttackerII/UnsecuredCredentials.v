@@ -24,7 +24,8 @@ Lemma one_step_unsecured_credentials_preserves_valid_attacker_ii : forall (a a' 
     unfold Pre in pre; destruct post.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' mac H0.
+    elim_intro_clear H0' Hmastered H0''.
+    elim_intro_clear H0'' mac H0.
     elim_intro_clear H0 macView H0'.
     elim_intro_clear H0' newMacView H0.
     elim_intro_clear H0 accs H0'.

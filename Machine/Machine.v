@@ -67,15 +67,14 @@ Section Machine.
   (* Exploits conocidos*)
   Parameter idExploit : Set.
   Parameter idExploit_eq : forall e1 e2 : idExploit, {e1 = e2} + {e1 <> e2}.
-  
-  Parameter Exploits : idService -> list idExploit.
-  
+
   Record Machine : Set :=
     machine {
       machine_services : list Service; (* Servicios registrados *)
       machine_accounts : list Account; (* Usuarios registrado. Un usuario puede estar suscrito a más de un servicio *)
       machine_fileSystem : list File; (* Archivos y directorios de la máquina *)
       machine_neighbours : list idMachine; (* Vecinos *)
+      machine_exploits : list (idService * idExploit); (* Exploits aplicables a la maquina *)
     }.
     
   (* Red de máquinas en un sistema *)

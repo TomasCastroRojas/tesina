@@ -24,12 +24,13 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_ii : forall (a 
     unfold Pre in pre; destruct post.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' mac H0''.
-    elim_intro_clear H0'' macView H0'''.
-    elim_intro_clear H0''' newMacView H0''''.
-    elim_intro_clear H0'''' services H0'''''.
-    elim_intro_clear H0''''' servicesView H0''''''.
-    elim_intro_clear H0'''''' servicesNewView H1.
+    elim_intro_clear H0' Hmastered H0''.
+    elim_intro_clear H0'' mac H0'''.
+    elim_intro_clear H0''' macView H0''''.
+    elim_intro_clear H0'''' newMacView H0'''''.
+    elim_intro_clear H0''''' services H0''''''.
+    elim_intro_clear H0'''''' servicesView H0'''''''.
+    elim_intro_clear H0''''''' servicesNewView H1.
 
     elim_intro_clear H1 env_m H1'.
     elim_intro_clear H1' network_m H1''.

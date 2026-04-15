@@ -19,13 +19,14 @@ Section TechniquePreCondition.
                                                                       /\ account_service acc = Some s
                                                                       /\ account_key acc = Some (Some k'))
       | Exploitation_Remote_Services m u m' s' e => (In (m,u) (known_machines a))
-                                                    /\ (exists (mac: Machine), (enviroment a) m = Some mac 
+                                                    /\ (exists (mac: Machine), (enviroment a) m = Some mac
                                                                                /\ In  m' (machine_neighbours mac))
-                                                    /\ (exists (serv : Service) 
-                                                               (mac': Machine), (enviroment a) m' = Some mac' 
+                                                    /\ (exists (serv : Service)
+                                                               (mac': Machine), (enviroment a) m' = Some mac'
                                                                                 /\ In serv (machine_services mac')
                                                                                 /\ service_value serv = s'
-                                                                                /\ (In e (Exploits s'))) (* Exploits conocido asociados a un servicio *)
+                                                                                /\ In (s', e) (machine_exploits mac')
+                                                                                /\ In (s', e) (mastered_exploits a))
       | Unsecured_Credentials m u s => (In (m,u) (known_machines a))
                                        /\ (exists (mac: Machine)
                                                   (acc : Account)

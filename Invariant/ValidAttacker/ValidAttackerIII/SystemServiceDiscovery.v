@@ -24,7 +24,8 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_iii : forall (a
     clear validAttackerI validAttackerII validAttacker'''.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' mac H0''.
+    elim_intro_clear H0' Hmastered H0'a.
+    elim_intro_clear H0'a mac H0''.
     elim_intro_clear H0'' macView H0'''.
     elim_intro_clear H0''' newMacView H0''''.
     elim_intro_clear H0'''' services H0'''''.
@@ -80,8 +81,8 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_iii : forall (a
          --- rewrite H0.
              elim (valid_machine_enva m macView).
              ---- intros users_macView HI.
-                  elim_intro_clear HI subfiles_macView HI'.
-                  elim_intro_clear HI' users_services_macView unique_macView.
+                  elim_intro_clear HI users_services_macView HI'.
+                  elim_intro_clear HI' exploits_macView fileSystem_macView.
                   unfold valid_machine.
                   rewrite newMacView_eq.
                   split.
@@ -95,7 +96,7 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_iii : forall (a
                                  simpl.
                                  rewrite servicesNewView_eq.
                                  intros acc Hinacc.
-                                 elim (subfiles_macView acc).
+                                 elim (users_services_macView acc).
                                  -------- intro Hnone. left. exact Hnone.
                                  -------- intros [s [Heq_s [service [Heq_service H_in_service]]]].
                                           right. exists s. split.
@@ -106,11 +107,31 @@ Lemma one_step_system_service_discovery_preserves_valid_attacker_iii : forall (a
                                                                apply oplusServices_preserves_membership.
                                                                exact H_in_service.
                                  -------- exact Hinacc.
-                         ------- unfold valid_fileSystem.
-                                 simpl.
-                                 split.
-                                 -------- exact users_services_macView.
-                                 -------- exact unique_macView.
+                         ------- split.
+                                 -------- unfold exploits_services in *.
+                                          unfold registered_service in *.
+                                          simpl.
+                                          intros s0 e0 Hin_exploits.
+                                          rewrite servicesNewView_eq.
+                                          elim (exploits_macView s0 e0).
+                                          --------- intros serv HI.
+                                                    elim_intro_clear HI serv_value_eq H_in_service.
+                                                    exists serv.
+                                                    split.
+                                                    ---------- exact serv_value_eq.
+                                                    ---------- rewrite servicesView_eq.
+                                                               apply oplusServices_preserves_membership.
+                                                               exact H_in_service.
+                                          --------- exact Hin_exploits.
+                                 -------- unfold valid_fileSystem in *.
+                                          simpl.
+                                          elim_intro_clear fileSystem_macView subfiles_macView fileSystem'_macView.
+                                          split.
+                                          --------- unfold subfiles_in_machine in *.
+                                                    unfold registered_paths in *.
+                                                    simpl.
+                                                    exact subfiles_macView.
+                                          --------- exact fileSystem'_macView.
              ---- exact env_m.
       -- elim (valid_machine_enva m' mac').
          --- intros users_mac' HI.

@@ -20,7 +20,8 @@ Lemma one_step_remote_services_preserves_valid_attacker_ii : forall (a a' : Atta
     elim_intro_clear validAttacker validAttackerI validAttacker'.
     elim_intro_clear validAttacker' validAttackerII validAttacker''.
     destruct pre; destruct post.
-    elim H2; intros secrets env; clear H2.
+    elim H2; intros secrets H2'; clear H2.
+    elim H2'; intros env Hmastered; clear H2'.
     unfold valid_attacker_ii in validAttackerII.
     rewrite env.
     apply validAttackerII.

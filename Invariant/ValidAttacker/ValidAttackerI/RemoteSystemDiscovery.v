@@ -22,7 +22,8 @@ Lemma one_step_remote_system_discovery_preserves_valid_attacker_i : forall (a a'
     intros validAttackerI validAttackerII_III.
     unfold Pre in pre; destruct post.
 
-    elim_intro_clear H0 Hsecrets H0'.
+    elim_intro_clear H0 Hsecrets H0_0.
+    elim_intro_clear H0_0 Hmastered H0'.
     elim_intro_clear H0' macView H0''.
     elim_intro_clear H0'' newMacView H0'''.
     elim_intro_clear H0''' mac H0''''.

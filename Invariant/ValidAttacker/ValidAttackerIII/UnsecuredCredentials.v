@@ -25,7 +25,8 @@ Lemma one_step_unsecured_credentials_preserves_valid_attacker_iii : forall (a a'
     clear validNetwork validAttackerI validAttackerII validAttackerIV.
 
     elim_intro_clear H0 Hsecrets H0'.
-    elim_intro_clear H0' mac H0.
+    elim_intro_clear H0' Hmastered H0'a.
+    elim_intro_clear H0'a mac H0.
     elim_intro_clear H0 macView H0'.
     elim_intro_clear H0' newMacView H0.
     elim_intro_clear H0 accs H0'.

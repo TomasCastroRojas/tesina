@@ -31,12 +31,13 @@ Lemma one_step_file_directory_discovery_local_preserves_valid_attacker_ii :
     unfold Pre in pre; destruct post.
 
     (* Descomposicion de los 6 existenciales del Post *)
-    elim_intro_clear H0 mac H0'.
-    elim_intro_clear H0' macView H0''.
-    elim_intro_clear H0'' newMacView H0'''.
-    elim_intro_clear H0''' filesMac H0''''.
-    elim_intro_clear H0'''' filesNewMacView H0'''''.
-    elim_intro_clear H0''''' newSecrets H1.
+    elim_intro_clear H0 Hmastered H0'.
+    elim_intro_clear H0' mac H0''.
+    elim_intro_clear H0'' macView H0'''.
+    elim_intro_clear H0''' newMacView H0''''.
+    elim_intro_clear H0'''' filesMac H0'''''.
+    elim_intro_clear H0''''' filesNewMacView H0''''''.
+    elim_intro_clear H0'''''' newSecrets H1.
 
     (* Descomposicion de la conjuncion de 8 partes *)
     elim_intro_clear H1 env_m H1'.
