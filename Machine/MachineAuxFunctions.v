@@ -264,5 +264,18 @@ Section MachineAuxOperations.
                                   end
                   end
       end.
+
+    Fixpoint get_accounts_linked_service_without_key (u: idUser) (s: idService) (l: list Account) : list Account :=
+      match l with
+        | nil => nil
+        | a::l' => match (account_service a) with
+                    | None => get_accounts_linked_service_without_key u s l'
+                    | Some s' => match (idUser_eq u (account_user a)), (idService_eq s s') with
+                                  | left _, left _ => get_accounts_linked_service_without_key u s l'
+                                  | right _, left _ => cons (account (account_user a) (Some s) None (account_privilege a)) (get_accounts_linked_service_without_key u s l')
+                                  | _, _ => get_accounts_linked_service_without_key u s l'
+                                  end
+                  end
+      end.
                     
 End MachineAuxOperations.

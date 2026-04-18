@@ -44,7 +44,7 @@ Section TechniquePreCondition.
                                                (mac': Machine) 
                                                (l: privilege), (enviroment a) m' = Some mac'
                                                                /\ In acc (machine_accounts mac')
-                                                               /\ account_user acc = u
+                                                               /\ account_user acc = u'
                                                                /\ account_service acc = Some s'
                                                                /\ account_key acc = None
                                                                /\ account_privilege acc = Some l)

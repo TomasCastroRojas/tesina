@@ -184,3 +184,58 @@ Require Import Machine.MachineValid.
         * apply IH. exact H.
       + apply IH. exact H.
   Qed.
+
+  (* Toda cuenta devuelta por get_accounts_linked_service_without_key es una vista parcial
+     (account_view) de alguna cuenta original en la lista. Las cuentas devueltas son sinteticas
+     (account_key = None), por lo que no pertenecen a la lista original, pero comparten usuario,
+     servicio y privilegio con una cuenta de la lista. *)
+  Lemma get_accounts_linked_service_without_key_view : forall (u: idUser) (s: idService) (l: list Account) (b: Account),
+      In b (get_accounts_linked_service_without_key u s l) ->
+      exists a, In a l /\ account_view b a.
+  Proof.
+    intros u s.
+    induction l as [| acc l' IH].
+    - intros b H. simpl in H. contradiction.
+    - intros b H. simpl in H.
+      destruct (account_service acc) as [s_acc |] eqn:Hserv.
+      + destruct (idUser_eq u (account_user acc)) as [Heq_u | Hneq_u];
+        destruct (idService_eq s s_acc) as [Heq_s | Hneq_s].
+        * apply IH in H. destruct H as [a [Hin Hview]].
+          exists a. split; [right; exact Hin | exact Hview].
+        * apply IH in H. destruct H as [a [Hin Hview]].
+          exists a. split; [right; exact Hin | exact Hview].
+        * simpl in H. destruct H as [Heq_b | Hin_rec].
+          -- exists acc. split.
+             ++ left. reflexivity.
+             ++ unfold account_view. rewrite <- Heq_b. simpl.
+                split; [reflexivity |].
+                split; [right; rewrite Hserv; rewrite Heq_s; reflexivity |].
+                split; [left; reflexivity | right; reflexivity].
+          -- apply IH in Hin_rec. destruct Hin_rec as [a [Hin Hview]].
+             exists a. split; [right; exact Hin | exact Hview].
+        * apply IH in H. destruct H as [a [Hin Hview]].
+          exists a. split; [right; exact Hin | exact Hview].
+      + apply IH in H. destruct H as [a [Hin Hview]].
+        exists a. split; [right; exact Hin | exact Hview].
+  Qed.
+
+  (* Toda cuenta devuelta por get_accounts_linked_service_without_key tiene account_service = Some s.
+     Las cuentas devueltas son sinteticas: se construyen con service = Some s explicitamente. *)
+  Lemma get_accounts_linked_service_without_key_service : forall (u: idUser) (s: idService) (l: list Account) (a: Account),
+      In a (get_accounts_linked_service_without_key u s l) -> account_service a = Some s.
+  Proof.
+    intros u s.
+    induction l as [| acc l' IH].
+    - intros a H. simpl in H. contradiction.
+    - intros a H. simpl in H.
+      destruct (account_service acc) as [s_acc |] eqn:Hserv.
+      + destruct (idUser_eq u (account_user acc)) as [Heq_u | Hneq_u];
+        destruct (idService_eq s s_acc) as [Heq_s | Hneq_s].
+        * apply IH. exact H.
+        * apply IH. exact H.
+        * simpl in H. destruct H as [Heq_a | Hin_rec].
+          -- rewrite <- Heq_a. simpl. reflexivity.
+          -- apply IH. exact Hin_rec.
+        * apply IH. exact H.
+      + apply IH. exact H.
+  Qed.

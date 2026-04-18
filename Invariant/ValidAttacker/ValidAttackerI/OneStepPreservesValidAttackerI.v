@@ -17,6 +17,8 @@ Require Import Invariant.ValidAttacker.ValidAttackerI.RemoteSystemDiscovery.
 Require Import Invariant.ValidAttacker.ValidAttackerI.SystemServiceDiscovery.
 Require Import Invariant.ValidAttacker.ValidAttackerI.FileDirectoryDiscoveryLocal.
 Require Import Invariant.ValidAttacker.ValidAttackerI.UnsecuredCredentials.
+Require Import Invariant.ValidAttacker.ValidAttackerI.BruteForce.
+Require Import Invariant.ValidAttacker.ValidAttackerI.AccountDiscoveryLocal.
 
 Theorem one_step_preserves_valid_attacker_i : forall (a a' : Attacker) (t : Technique) (n: network_map),
       one_step a t n a' -> valid_attacker_i a'.
@@ -28,13 +30,13 @@ Theorem one_step_preserves_valid_attacker_i : forall (a a' : Attacker) (t : Tech
     - apply (one_step_remote_services_preserves_valid_attacker_i a a' network H0 i i1 i0 i2 k i3); auto.
     - apply (one_step_exploitation_remote_services_preserves_valid_attacker_i a a' network H0 i i1 i0 i2 i3); auto.
     - apply (one_step_unsecured_credentials_preserves_valid_attacker_i a a' network H0 i i0 i1); auto.
-    - admit. (* Brute_Force *)
+    - apply (one_step_brute_force_preserves_valid_attacker_i a a' network H0 i i1 i0 i2 i3); auto. (* Brute_Force *)
     - admit. (* Abuse_Elevation_Control_Mechanism *)
     - apply (one_step_file_directory_discovery_local_preserves_valid_attacker_i a a' network H0 i i0 p); auto.
     - admit. (* File_Directory_Discovery_Remote *)
     - admit. (* Network_Service_Scanning *)
     - apply (one_step_remote_system_discovery_preserves_valid_attacker_i a a' network H0 i i0); auto.
-    - admit. (* Account_Discovery_Local *)
+    - apply (one_step_account_discovery_local_preserves_valid_attacker_i a a' network H0 i i0 i1); auto.
     - admit. (* Account_Discovery_Remote *)
     - apply (one_step_system_service_discovery_preserves_valid_attacker_i a a' network H0 i i0); auto. 
   Admitted.
