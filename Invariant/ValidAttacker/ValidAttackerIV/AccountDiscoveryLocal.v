@@ -82,9 +82,9 @@ Lemma one_step_account_discovery_local_preserves_valid_attacker_iv : forall (a a
       + right.
         rewrite accsLinkedToService_eq in Hin_linked.
         apply get_accounts_linked_service_without_key_view in Hin_linked.
-        destruct Hin_linked as [a' [Hin_a' Hview]].
-        exists a'. split.
-        * rewrite <- accs_eq. exact Hin_a'.
+        destruct Hin_linked as [a0 [Hin_a0 Hview]].
+        exists a0. split.
+        * rewrite <- accs_eq. exact Hin_a0.
         * exact Hview.
       + rewrite accsView_eq in Hin_view.
         apply Haccs. exact Hin_view.

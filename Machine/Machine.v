@@ -23,26 +23,8 @@ Section Machine.
   Parameter idService_eq : forall s1 s2: idService, {s1 = s2} + {s1 <> s2}.
   Parameter OS: idService.
 
-  (* Cuentas *)
-      
-  Record Account : Set :=
-      account {
-        account_user      : idUser;
-        account_service   : option idService;
-        account_key       : option (option key); 
-        account_privilege : option privilege;
-      }.
-    
-  (* Valor asociado del recurso de un servicio (Numero de puerto, numero de proceso o un archivo)*)
-  Parameter serviceValue : Set.
-  Parameter serviceValue_eq : forall val1 val2 : serviceValue, {val1 = val2} + {val1 <> val2}.
-
-  (* Servicios *)
-  Record Service : Set :=
-    service {
-      service_value : idService;
-      service_port : nat;
-    }.
+  Parameter idProcess : Set.
+  Parameter idProcess_eq : forall p1 p2: idProcess, {p1 = p2} + {p1 <> p2}.
 
   (* Rutas del sistema de archivos *)
   Parameter path : Set.
@@ -51,7 +33,29 @@ Section Machine.
   (* Flag que marca los objetivos del atacante *)
   Definition objective := bool.
 
+  (* Tipo Inductivo para definir el modo de exposición *)
+  Inductive servExposure : Set :=
+    | ExpPort    : nat -> servExposure        (* Un puerto requiere un número natural *)
+    | ExpProcess : idProcess -> servExposure  (* Un proceso requiere su identificador *)
+    | ExpFile    : path -> servExposure.      (* Un archivo requiere su ruta *)
+
+  (* Cuentas *)
+  Record Account : Set :=
+      account {
+        account_user      : idUser;
+        account_service   : option idService;
+        account_key       : option (option key); 
+        account_privilege : option privilege;
+      }.
+  
   (* Servicios *)
+  Record Service : Set :=
+    service {
+      service_value : idService;
+      service_exposure : servExposure;
+    }.
+  
+  (* Archivos *)
   Record File : Set :=
     file {
       file_path : path;
