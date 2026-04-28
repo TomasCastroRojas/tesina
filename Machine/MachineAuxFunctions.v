@@ -116,6 +116,12 @@ Section MachineAuxOperations.
         | s::ss => oplusServices (addService s dest) ss
       end.
 
+    Definition is_network_service (s: Service) : Prop :=
+      match (service_exposure s) with
+        | ExpPort _ => True
+        | _ => False
+      end.
+  
   (* ===== Operaciones sobre secretos (idMachine * path) ===== *)
 
     (* Agrega el par (idMachine, path) a la lista de secretos si no existe ya un par identico.

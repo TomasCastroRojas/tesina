@@ -16,9 +16,11 @@ Require Import Invariant.ValidAttacker.ValidAttackerIII.ExploitationRemoteServic
 Require Import Invariant.ValidAttacker.ValidAttackerIII.RemoteSystemDiscovery.
 Require Import Invariant.ValidAttacker.ValidAttackerIII.SystemServiceDiscovery.
 Require Import Invariant.ValidAttacker.ValidAttackerIII.FileDirectoryDiscoveryLocal.
+Require Import Invariant.ValidAttacker.ValidAttackerIII.FileDirectoryDiscoveryRemote.
 Require Import Invariant.ValidAttacker.ValidAttackerIII.UnsecuredCredentials.
 Require Import Invariant.ValidAttacker.ValidAttackerIII.BruteForce.
 Require Import Invariant.ValidAttacker.ValidAttackerIII.AccountDiscoveryLocal.
+Require Import Invariant.ValidAttacker.ValidAttackerIII.AccountDiscoveryRemote.
 
 Theorem one_step_preserves_valid_attacker_iii : forall (a a' : Attacker) (t : Technique) (n: network_map),
       one_step a t n a' -> valid_attacker_iii a'.
@@ -27,16 +29,16 @@ Theorem one_step_preserves_valid_attacker_iii : forall (a a' : Attacker) (t : Te
     destruct onestep.
     induction t; unfold valid_attacker in H0; unfold valid_concrete_network in H;
     unfold Pre in H1; unfold Post in H2; unfold valid_attacker_iii.
-    - apply (one_step_remote_services_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 k i3); auto.
+    - apply (one_step_remote_services_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 o i3); auto.
     - apply (one_step_exploitation_remote_services_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 i3); auto.
     - apply (one_step_unsecured_credentials_preserves_valid_attacker_iii a a' network H0 i i0 i1); auto.
     - apply (one_step_brute_force_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 i3); auto.
     - admit. (* Abuse_Elevation_Control_Mechanism *)
     - apply (one_step_file_directory_discovery_local_preserves_valid_attacker_iii a a' network H0 i i0 p); auto.
-    - admit. (* File_Directory_Discovery_Remote *)
+    - apply (one_step_file_directory_discovery_remote_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 o p i3); auto.
     - admit. (* Network_Service_Scanning *)
     - apply (one_step_remote_system_discovery_preserves_valid_attacker_iii a a' network H0 i i0); auto.
     - apply (one_step_account_discovery_local_preserves_valid_attacker_iii a a' network H0 i i0 i1); auto.
-    - admit. (* Account_Discovery_Remote *)
+    - apply (one_step_account_discovery_remote_preserves_valid_attacker_iii a a' network H0 i i1 i0 i2 o i3); auto.
     - apply (one_step_system_service_discovery_preserves_valid_attacker_iii a a' network H0 i i0); auto.
   Admitted.

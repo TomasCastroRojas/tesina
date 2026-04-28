@@ -17,7 +17,7 @@ Section TechniquePreCondition.
                                                                       /\ In acc (machine_accounts mac')
                                                                       /\ account_user acc = u'
                                                                       /\ account_service acc = Some s
-                                                                      /\ account_key acc = Some (Some k'))
+                                                                      /\ account_key acc = Some k')
       | Exploitation_Remote_Services m u m' s' e => (In (m,u) (known_machines a))
                                                     /\ (exists (mac: Machine), (enviroment a) m = Some mac
                                                                                /\ In  m' (machine_neighbours mac))
@@ -76,6 +76,7 @@ Section TechniquePreCondition.
                                                                          (acc : Account), (enviroment a) m' = Some mac'
                                                                                           /\ In serv' (machine_services mac') 
                                                                                           /\ service_value serv' = s'
+                                                                                          /\ is_network_service serv'
                                                                                           /\ In acc (machine_accounts mac')
                                                                                           /\ account_user acc = u'
                                                                                           /\ account_service acc = Some s'
@@ -91,14 +92,14 @@ Section TechniquePreCondition.
                                          /\ (exists (mac: Machine)
                                                     (serv: Service)
                                                     (acc : Account)
-                                                    (k: key)
+                                                    (k: option key)
                                                     (l: privilege), (enviroment a) m = Some mac
                                                                     /\ In serv (machine_services mac)
                                                                     /\ service_value serv = s
                                                                     /\ In acc (machine_accounts mac)
                                                                     /\ account_user acc = u
                                                                     /\ account_service acc = Some s
-                                                                    /\ account_key acc = Some (Some k)
+                                                                    /\ account_key acc = Some k
                                                                     /\ account_privilege acc = Some l)
       | Account_Discovery_Remote m u m' u' k' s' => (In (m,u) (known_machines a))
                                                     /\ (exists (mac: Machine), (enviroment a) m = Some mac 
@@ -109,10 +110,11 @@ Section TechniquePreCondition.
                                                                (l: privilege), (enviroment a) m' = Some mac'
                                                                                /\ In serv' (machine_services mac')
                                                                                /\ service_value serv' = s'
+                                                                               /\ is_network_service serv'
                                                                                /\ In acc' (machine_accounts mac')
                                                                                /\ account_user acc' = u'
                                                                                /\ account_service acc' = Some s'
-                                                                               /\ account_key acc' <> None
+                                                                               /\ account_key acc' = Some k'
                                                                                /\ account_privilege acc' = Some l)
       | System_Service_Discovery m u => In (m,u) (known_machines a)
     end.

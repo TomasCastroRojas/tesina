@@ -8,7 +8,7 @@ Section Techniques.
 
   Inductive Technique : Set :=
     (* Lateral Movement *)
-    | Remote_Services : idMachine -> idUser -> idMachine -> idUser -> key -> idService -> Technique
+    | Remote_Services : idMachine -> idUser -> idMachine -> idUser -> option key -> idService -> Technique
     | Exploitation_Remote_Services : idMachine -> idUser -> idMachine -> idService -> idExploit -> Technique
     (* Credential Access *)
     | Unsecured_Credentials : idMachine -> idUser -> idService -> Technique
@@ -17,11 +17,11 @@ Section Techniques.
     | Abuse_Elevation_Control_Mechanism : idMachine -> idUser -> Technique
     (* Discovery *)
     | File_Directory_Discovery_Local : idMachine -> idUser -> path -> Technique
-    | File_Directory_Discovery_Remote : idMachine -> idUser -> idMachine -> idUser -> key -> path -> idService -> Technique
+    | File_Directory_Discovery_Remote : idMachine -> idUser -> idMachine -> idUser -> option key -> path -> idService -> Technique
     | Network_Service_Scanning : idMachine -> idUser -> idMachine -> list nat -> Technique
     | Remote_System_Discovery : idMachine -> idUser -> Technique
     | Account_Discovery_Local : idMachine -> idUser -> idService -> Technique
-    | Account_Discovery_Remote : idMachine -> idUser -> idMachine -> idUser -> key -> idService -> Technique
+    | Account_Discovery_Remote : idMachine -> idUser -> idMachine -> idUser -> option key -> idService -> Technique
     | System_Service_Discovery : idMachine -> idUser -> Technique.
 
 End Techniques.
