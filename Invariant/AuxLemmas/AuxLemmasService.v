@@ -67,3 +67,31 @@ Require Import Invariant.AuxLemmas.AuxLemmasLogic.
       -- left. apply addService_membership. exact Hin_add.
       -- right. exact Hin_l2.
   Qed.
+
+  (* Si lookupServicePort encuentra un servicio, ese servicio pertenece a la lista *)
+  Lemma lookupServicePort_in : forall (port: nat) (l: list Service) (s: Service),
+    lookupServicePort port l = Some s -> In s l.
+  Proof.
+    intros port l s.
+    induction l as [| s' l' IH]; simpl.
+    - intro H. discriminate.
+    - destruct (service_exposure s') as [n | p | f] eqn:Eexp.
+      -- destruct (Nat.eqb n port) eqn:Eeq.
+         --- intro H. left. injection H. auto.
+         --- intro H. right. apply IH. exact H.
+      -- intro H. right. apply IH. exact H.
+      -- intro H. right. apply IH. exact H.
+  Qed.
+
+  Lemma scanServices_subset : forall (s: Service) (l: list Service) (delta: list nat),
+    In s (scanServices l delta) -> In s l.
+  Proof.
+    intros s l delta.
+    induction delta as [| p ports' IH]; simpl.
+    - intro H. contradiction.
+    - destruct (lookupServicePort p l) as [s0 |] eqn:Elookup.
+      -- intros [Heq | Hin].
+         --- subst s0. eapply lookupServicePort_in. exact Elookup.
+         --- apply IH. exact Hin.
+      -- intro H. apply IH. exact H.
+  Qed.

@@ -52,11 +52,11 @@ Section TechniquePreCondition.
       | Abuse_Elevation_Control_Mechanism m u => (In (m,u) (known_machines a))
                                                  /\ (exists (acc : Account) 
                                                             (mac: Machine)
-                                                            (k : key), (enviroment a) m = Some mac
+                                                            (k : option key), (enviroment a) m = Some mac
                                                                        /\ In acc (machine_accounts mac)
                                                                        /\ account_user acc = u
                                                                        /\ account_service acc = Some OS
-                                                                       /\ account_key acc = Some (Some k)
+                                                                       /\ account_key acc = Some k
                                                                        /\ account_privilege acc = Some low_star)
       | File_Directory_Discovery_Local m u p => (In (m,u) (known_machines a))
                                                 /\ (exists (mac: Machine)

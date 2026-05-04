@@ -179,33 +179,41 @@ Section TechniquePostCondition.
                                                                                                                 (machine_neighbours macView')
                                                                                                                 (machine_exploits macView')
                                                                                           /\ enviroment a' = modify_machine m' newMacView (enviroment a))
-(*
  
       | Abuse_Elevation_Control_Mechanism m u => secrets a' = secrets a
-                                                 /\ enviroment a' = enviroment a
-                                                 /\ (exists (mac: Machine)
+                                                 /\ mastered_exploits a' = mastered_exploits a
+                                                 /\ (exists (mac macView newMacView: Machine)
                                                             (u': idUser)
-                                                            (accs: list Account)
-                                                            (acc: Account), network m = Some mac
-                                                                            /\ (machine_accounts mac) u' = Some accs
-                                                                            /\ (In acc accs)
-                                                                            /\ account_service acc = OS
-                                                                            /\ account_privilege acc = Some high
-                                                                            /\ known_machines a' = add_machine_user (m, u') (known_machines a))
-
+                                                            (newAccountsView: list Account)
+                                                            (accHigh accHighView: Account), network m = Some mac
+                                                                                /\ (enviroment a) m = Some macView
+                                                                                /\ In accHigh (machine_accounts mac)
+                                                                                /\ account_user accHigh = u'
+                                                                                /\ account_service accHigh = Some OS
+                                                                                /\ account_privilege accHigh = Some high
+                                                                                /\ accHighView = account u' (Some OS) None (Some high)
+                                                                                /\ newAccountsView = addAccount accHighView (machine_accounts macView)
+                                                                                /\ newMacView = machine (machine_services macView)
+                                                                                                        newAccountsView
+                                                                                                        (machine_fileSystem macView)
+                                                                                                        (machine_neighbours macView)
+                                                                                                        (machine_exploits macView)
+                                                                                /\ known_machines a' = add_machine_user (m, u') (known_machines a)
+                                                                                /\ enviroment a' = modify_machine m newMacView (enviroment a))
       | Network_Service_Scanning m u m' l => known_machines a' = known_machines a
                                              /\ secrets a' = secrets a
-                                             /\ (exists (macView': Machine)
-                                                        (mac': Machine), (enviroment a) m' = Some macView'
-                                                                         /\ enviroment a' = modify_machine m'
-                                                                                                            (machine (unionServices (machine_services macView') (scanServices (machine_services mac') l))
-                                                                                                                     (machine_accounts macView')
-                                                                                                                     (machine_fileSystem macView')
-                                                                                                                     (machine_neighbours macView'))
-                                                                                                                     (enviroment a))
-
-*)  
-    | _ => True                                                                                                        
+                                             /\ mastered_exploits a' = mastered_exploits a
+                                             /\ (exists (mac macView' newMacView': Machine)
+                                                        (portsServices servicesNewView: list Service), (enviroment a) m' = Some macView'
+                                                                                                      /\ network m' = Some mac
+                                                                                                      /\ portsServices = scanServices (machine_services mac) l
+                                                                                                      /\ servicesNewView = oplusServices (machine_services macView') portsServices
+                                                                                                      /\ newMacView' = machine servicesNewView
+                                                                                                                                (machine_accounts macView')
+                                                                                                                                (machine_fileSystem macView')
+                                                                                                                                (machine_neighbours macView')
+                                                                                                                                (machine_exploits macView')
+                                                                                                      /\ enviroment a' = modify_machine m' newMacView' (enviroment a))                                                                                                      
     end.
     
 End TechniquePostCondition.

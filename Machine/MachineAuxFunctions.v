@@ -121,6 +121,24 @@ Section MachineAuxOperations.
         | ExpPort _ => True
         | _ => False
       end.
+
+    Fixpoint lookupServicePort (port: nat) (l: list Service) : option Service :=
+      match l with
+        | nil => None
+        | s :: l' => match service_exposure s with
+                      | ExpPort p => if Nat.eqb p port then Some s else lookupServicePort port l'
+                      | _ => lookupServicePort port l'
+                     end
+      end.
+    
+      Fixpoint scanServices (l: list Service) (ports: list nat) : list Service :=
+      match ports with
+        | nil => nil
+        | p :: ports' => match lookupServicePort p l with
+                          | None => scanServices l ports'
+                          | Some s => cons s (scanServices l ports')
+                         end
+      end.
   
   (* ===== Operaciones sobre secretos (idMachine * path) ===== *)
 
