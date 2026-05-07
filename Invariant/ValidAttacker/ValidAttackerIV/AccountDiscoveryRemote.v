@@ -40,77 +40,70 @@ Lemma one_step_account_discovery_remote_preserves_valid_attacker_iv : forall (a 
 
     unfold valid_attacker_iv in validAttackerIV.
     unfold is_networkView in validAttackerIV.
-    intros m0 mac1 mac2 env_a'_m0 network_m0.
-    unfold is_machineView.
+    intros m0 mac1 env_a'_m0.
     case (idMachine_eq m0 m'); intros eq_m0.
-    elim (validAttackerIV m0 macView mac).
-    intros Hserv. intro Hserv'.
-    destruct Hserv' as [Haccs Hserv''].
-    destruct Hserv'' as [Hfiles Hserv'''].
-    destruct Hserv''' as [Hneighs Hexploits].
-    assert (Heq_mac1: mac1 = newMacView).
-    {
-      apply (enviroment_simpl (enviroment a) (enviroment a') m0 m' mac1 newMacView).
-      - exact eq_m0.
-      - exact env_a'.
-      - exact env_a'_m0.
-    }
-    assert (Heq_mac2: mac2 = mac).
-    {
-      apply (enviroment_map_image network m' mac2 mac).
-      - rewrite eq_m0 in network_m0. exact network_m0.
-      - exact network_m.
-    }
-    rewrite Heq_mac1.
-    rewrite Heq_mac2.   
-    split; [|split; [|split]]; try split.
-    - unfold subset_services in *.
-      rewrite newMacView_eq.
-      simpl.
-      exact Hserv.
-    - unfold subset_accounts in *.
-      rewrite newMacView_eq.
-      simpl.
-      rewrite newAccountsView_eq.
-      intros Hacc Hin_oplus.
-      apply member_oplusAccounts_simpl in Hin_oplus.
-      destruct Hin_oplus as [Hin_linked | Hin_view].
-      + right.
-        rewrite accsLinkedToService_eq in Hin_linked.
-        apply get_accounts_linked_service_without_key_view in Hin_linked.
-        destruct Hin_linked as [a0 [Hin_a0 Hview]].
-        exists a0. split.
-        * exact Hin_a0.
-        * exact Hview.
-      + apply Haccs. exact Hin_view.
-    - unfold subset_files in *.
-      rewrite newMacView_eq.
-      simpl.
-      exact Hfiles.
-    - unfold subset_neighbours in *.
-      rewrite newMacView_eq.
-      simpl.
-      exact Hneighs.
-    - unfold subset_exploits in *.
-      rewrite newMacView_eq.
-      simpl.
-      exact Hexploits.
-    - rewrite <- eq_m0 in env_m. exact env_m.
-    - rewrite <- eq_m0 in network_m. exact network_m.
-    - elim (validAttackerIV m0 mac1 mac2).
-      intros Hserv. intro Hserv'.
-      destruct Hserv' as [Haccs Hserv''].
-      destruct Hserv'' as [Hfiles Hserv'''].
-      destruct Hserv''' as [Hneighs Hexploits].
-      split; [|split; [|split]]; try split.
-      -- exact Hserv.
-      -- exact Haccs.
-      -- exact Hfiles.
-      -- exact Hneighs.
-      -- exact Hexploits.
-      -- rewrite <- (enviroment_eq (enviroment a) (enviroment a') m0 m' newMacView).
-         --- exact env_a'_m0.
-         --- exact eq_m0.
-         --- exact env_a'.
-      -- exact network_m0.
+    - (* m0 = m' *)
+      exists mac.
+      split.
+      + rewrite eq_m0. exact network_m.
+      + assert (Heq_mac1: mac1 = newMacView).
+        {
+          apply (enviroment_simpl (enviroment a) (enviroment a') m0 m' mac1 newMacView).
+          - exact eq_m0.
+          - exact env_a'.
+          - exact env_a'_m0.
+        }
+        rewrite Heq_mac1.
+        destruct (validAttackerIV m0 macView) as [mac'' [Hnetwork' Hmv]].
+        { rewrite <- eq_m0 in env_m. exact env_m. }
+        assert (Heq_mac': mac'' = mac).
+        {
+          apply (enviroment_map_image network m' mac'' mac).
+          - rewrite <- eq_m0. exact Hnetwork'.
+          - exact network_m.
+        }
+        rewrite Heq_mac' in Hmv.
+        destruct Hmv as [Hserv [Haccs [Hfiles [Hneighs Hexploits]]]].
+        unfold is_machineView.
+        split; [|split; [|split]]; try split.
+        -- unfold subset_services in *.
+           rewrite newMacView_eq.
+           simpl.
+           exact Hserv.
+        -- unfold subset_accounts in *.
+           rewrite newMacView_eq.
+           simpl.
+           rewrite newAccountsView_eq.
+           intros Hacc Hin_oplus.
+           apply member_oplusAccounts_simpl in Hin_oplus.
+           destruct Hin_oplus as [Hin_linked | Hin_view].
+           --- right.
+               rewrite accsLinkedToService_eq in Hin_linked.
+               apply get_accounts_linked_service_without_key_view in Hin_linked.
+               destruct Hin_linked as [a0 [Hin_a0 Hview]].
+               exists a0. split.
+               ---- exact Hin_a0.
+               ---- exact Hview.
+           --- apply Haccs. exact Hin_view.
+        -- unfold subset_files in *.
+           rewrite newMacView_eq.
+           simpl.
+           exact Hfiles.
+        -- unfold subset_neighbours in *.
+           rewrite newMacView_eq.
+           simpl.
+           exact Hneighs.
+        -- unfold subset_exploits in *.
+           rewrite newMacView_eq.
+           simpl.
+           exact Hexploits.
+    - (* m0 <> m' *)
+      destruct (validAttackerIV m0 mac1) as [mac2 [Hn2 Hmv]].
+      { rewrite <- (enviroment_eq (enviroment a) (enviroment a') m0 m' newMacView).
+        - exact env_a'_m0.
+        - exact eq_m0.
+        - exact env_a'.
+      }
+      exists mac2.
+      split; assumption.
   Qed.

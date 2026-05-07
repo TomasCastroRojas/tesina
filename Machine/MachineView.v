@@ -48,9 +48,16 @@ Section MachineView.
     /\ subset_neighbours (machine_neighbours m1) (machine_neighbours m2)
     /\ subset_exploits (machine_exploits m1) (machine_exploits m2).
 
-  (* Una red es vista parcial de otra si para toda maquina definida en ambas, la primera es vista parcial de la segunda *)
+  (* Una red es vista parcial de otra si toda maquina definida en la primera tambien lo esta
+     en la segunda y la primera es vista parcial de la segunda en ese identificador.
+     Esto expresa la inclusion de dominio enviroment ⊆ network ademas de la relacion punto a punto:
+     el atacante no tiene vistas de maquinas inexistentes en la red concreta. *)
   Definition is_networkView (net1 net2: network_map) : Prop :=
-    forall (m: idMachine) (mac1 mac2: Machine), net1 m = Some mac1 -> net2 m = Some mac2 -> is_machineView mac1 mac2.
+    forall (m: idMachine) (mac1: Machine),
+      net1 m = Some mac1 ->
+      exists (mac2: Machine),
+        net2 m = Some mac2
+        /\ is_machineView mac1 mac2.
 
 
 End MachineView.
